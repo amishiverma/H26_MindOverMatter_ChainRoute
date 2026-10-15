@@ -268,7 +268,7 @@ export const App: React.FC = () => {
           />
 
           {/* Main Dashboard Column */}
-          <div className="flex-1 flex flex-col min-w-0 relative z-10">
+          <div className="flex-1 flex flex-col min-w-0 relative z-10 ml-[72px] sm:ml-20">
             {/* Top Floating Glassmorphic Utility Header */}
             <DashboardHeader
               onOpenSearch={() => setShowCommandPalette(true)}
