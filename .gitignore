@@ -1,1 +1,6 @@
 __pycache__
+.venv
+.env
+tests
+project_board.md
+code_context.txt

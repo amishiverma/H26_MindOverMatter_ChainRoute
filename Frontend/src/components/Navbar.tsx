@@ -37,7 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] transition-transform group-hover:scale-105">
             <img 
               src={logoImg} 
-              alt="TraceRoot Logo" 
+              alt="ChainRoute Logo" 
               className="w-6 h-6 object-contain relative z-10" 
             />
             <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border-2 border-[#121b18]" />
@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex flex-col">
             <div className="flex items-center space-x-2">
               <span className="font-display font-bold text-lg tracking-wide text-white">
-                TraceRoot
+                ChainRoute
               </span>
             </div>
             <span className="text-[10px] text-stone-400 font-medium tracking-wider flex items-center gap-1 uppercase">

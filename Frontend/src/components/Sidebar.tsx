@@ -44,7 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <img 
             src={logoImg} 
-            alt="TraceRoot" 
+            alt="ChainRoute" 
             className="w-7 h-7 object-contain" 
           />
           <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-lime-500 border-2 border-[#0e100f]" />
