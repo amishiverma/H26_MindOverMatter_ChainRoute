@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { GithubIcon, formatGithubUrl } from './GithubIcon';
 
-const TOTAL_LOGO_FRAMES = 277; // Frames 1-23 permanently removed
+const TOTAL_LOGO_FRAMES = 300;
 const TOTAL_HERO_FRAMES = 300;
 
 interface LandingHeroProps {
@@ -59,7 +59,7 @@ const LogoScrollySection: React.FC = () => {
   // Overall overlay container visibility
   const overlayOpacity = useTransform(smoothProgress, [0.0, 0.67, 0.6833], [1, 1, 0]);
 
-  // Preload logo frames (277 frames, frames 1-23 removed)
+  // Preload logo frames (300 sequential PNG frames)
   useEffect(() => {
     let count = 0;
     const images: HTMLImageElement[] = [];
@@ -67,7 +67,7 @@ const LogoScrollySection: React.FC = () => {
     for (let i = 1; i <= TOTAL_LOGO_FRAMES; i++) {
       const img = new Image();
       const num = String(i).padStart(4, '0');
-      img.src = `/frames/logo/frame_${num}.jpg`;
+      img.src = `/frames/logo/frame_${num}.png`;
 
       img.onload = () => {
         count++;
@@ -92,8 +92,8 @@ const LogoScrollySection: React.FC = () => {
 
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
-    const imgWidth = img.width || 1234;
-    const imgHeight = img.height || 674;
+    const imgWidth = img.width || 1280;
+    const imgHeight = img.height || 720;
 
     const hRatio = canvasWidth / imgWidth;
     const vRatio = canvasHeight / imgHeight;
