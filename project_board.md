@@ -111,12 +111,93 @@ feat(sandbox): implement double-baseline test runner and repo cloner with anti-b
 
 ---
 
-## Phase 3 — Pending (Dev 1 backlog)
+## Phase 3 — Dependency Swapper & Immutable Fact Ledger ✅ COMPLETE
 
-- [ ] Sandboxed executor: run arbitrary Python code inside the venv
-- [ ] Fact Ledger writer: persist `CensusReport` and `BaselineResult` to structured JSON
-- [ ] Package installer: `uv pip install <dep>` inside the sandbox
-- [ ] Security policy: restrict subprocess capabilities inside sandbox
+### Deliverables
+
+| File | Status | Notes |
+|------|--------|-------|
+| `backend/sandbox/swapper.py` | ✅ Created | Git worktree creation, uv pip dependency swap, `git apply --check` AI patch |
+| `backend/sandbox/verdict.py` | ✅ Created | Swapped pytest runner, diff against baseline, flaky exclusion, PASS/FAIL/INCONCLUSIVE |
+| `backend/sandbox/fact_generator.py` | ✅ Created | Strict 10-field + `usage_locations` (AST census) immutable JSON Fact Ledger with SHA256 integrity hash |
+| `backend/sandbox/__init__.py` | ✅ Updated | Unified public interface exports for Phases 1, 2, and 3 |
+| `tests/sandbox/test_phase3.py` | ✅ Created | 17 tests, all PASS |
+
+### Test Results (2026-10-15)
+
+```
+Ran 17 tests in 6.809s — OK
+```
+
+| TC | Description | Result |
+|----|-------------|--------|
+| TC-01 | Validates arguments (rejects empty target/candidate) | PASS |
+| TC-02 | Creates git worktree on unique branch | PASS |
+| TC-03 | SwappedWorktree.cleanup() removes worktree directory & branch | PASS |
+| TC-04 | apply_patch_to_tree rejects invalid patch (git apply --check) | PASS |
+| TC-05 | apply_patch_to_tree cleanly applies valid patch and returns SHA256 | PASS |
+| TC-06 | swap_dependencies uninstalls target and installs candidate via uv | PASS |
+| TC-07 | compute_verdict: PASS when all stable baseline tests pass | PASS |
+| TC-08 | compute_verdict: FAIL on regression of stable_pass test | PASS |
+| TC-09 | compute_verdict: FAIL on brand new failing test | PASS |
+| TC-10 | compute_verdict: INCONCLUSIVE when 0 tests run / collection error | PASS |
+| TC-11 | compute_verdict: Mathematically EXCLUDES flaky tests from verdict | PASS |
+| TC-12 | compute_verdict: Records fixed tests when stable_fail tests pass | PASS |
+| TC-13 | build_fact_ledger: Populates all strict fields including usage_locations | PASS |
+| TC-14 | FactLedger.to_json(): Valid deterministic JSON | PASS |
+| TC-15 | FactLedger.verify_integrity(): Cryptographic tamper detection | PASS |
+| TC-16 | FactLedger.save(): Persists to disk | PASS |
+| TC-17 | FULL FLOW DRY RUN: Phase 1 -> Phase 2 -> Phase 3 -> Fact JSON | PASS — All steps verified |
+
+### TC-17 Live Fact Ledger JSON Output
+
+```json
+{
+  "run_id": "run_1425d94ddb4c4b9eaff96709d5e9111e",
+  "base_sha": "bb6a7be89ec899de5786913564590dcec7e8f180",
+  "py_version": "3.12.10",
+  "candidate": "new_math>=2.0.0",
+  "patch_sha": "3c58ab2b430b362f048123afa49b86cc02c73f0cc3144f4b050943227a8f7246",
+  "baseline_res": {
+    "is_clean": true,
+    "stable_pass_count": 2,
+    "stable_fail_count": 0,
+    "flaky_count": 0,
+    "run1_exit_code": 0,
+    "run2_exit_code": 0
+  },
+  "swapped_res": {
+    "exit_code": 0,
+    "passed_count": 2,
+    "failed_count": 0,
+    "error_count": 0,
+    "skipped_count": 0,
+    "regressed_nodeids": [],
+    "fixed_nodeids": []
+  },
+  "flaky": [],
+  "verdict": "PASS",
+  "junit_path": "C:\\Users\\Yash\\AppData\\Local\\Temp\\sandbox_wt_ty73awdg\\worktree\\results_run10.xml",
+  "timestamp_utc": "2026-10-15T08:22:21.541287+00:00",
+  "usage_locations": {
+    "dependency": "old_math",
+    "repo_dir": "C:\\Users\\Yash\\AppData\\Local\\Temp\\phase3_e2e_jlarmuai\\e2e_repo",
+    "total_usages": 0,
+    "files_scanned": 2,
+    "import_sites": [],
+    "invocation_sites": [],
+    "errors": {}
+  },
+  "ledger_sha256": "e453e3a15a333d97aefc27f3f769b9b11fc978bd4745bb6def937127e79f61fc"
+}
+```
+
+### Commit Message
+
+```
+feat(sandbox): implement dependency swapper and immutable fact ledger generator
+```
+
 
 ---
 
@@ -151,4 +232,22 @@ feat(sandbox): implement double-baseline test runner and repo cloner with anti-b
 - **Double-baseline protocol**: Executes two consecutive pytest runs against the untouched repo clone to identify non-deterministic tests.
 - **Mathematical flaky isolation**: Tests transitioning `pass -> fail` (PASS_FAIL_FLAKY) or `fail -> pass` (FAIL_PASS_FLAKY) are tagged and exposed via `flaky_nodeids`.
 - **Verdict exclusion**: Downstream mutation / verification engines can exclude `flaky_nodeids` to prevent false positive attribution.
+
+### swapper.py
+- **Isolated git worktrees**: Creates detached worktree branches to isolate mutations completely from the host repo.
+- **Hermetic dependency swap**: Directs `uv pip uninstall` and `uv pip install` exclusively into `SandboxEnv.python_bin`.
+- **Two-stage patch verification**: Runs `git apply --check` first to validate patch integrity before applying changes.
+- **Cryptographic patch hashing**: SHA256 digest computed for every AI patch and tracked in audit records.
+
+### verdict.py
+- **Mathematical flaky exclusion**: Any test tagged flaky during Phase 2 baseline is omitted from pass/fail calculations.
+- **Regression detection**: Flags `FAIL` if any baseline `stable_pass` test fails or errors on the swapped tree.
+- **Inconclusive guard**: Flags `INCONCLUSIVE` if test collection crashes or if zero baseline passing signal existed.
+- **Improvement tracking**: Identifies `fixed_nodeids` when previously broken tests pass after dependency upgrade.
+
+### fact_generator.py
+- **Strict schema**: Emits exact 10 required fields (`run_id`, `base_sha`, `py_version`, `candidate`, `patch_sha`, `baseline_res`, `swapped_res`, `flaky`, `verdict`, `junit_path`).
+- **Cryptographic integrity hash**: Calculates `ledger_sha256` over canonical JSON; `verify_integrity()` detects any post-hoc tampering.
+- **Audit-ready persistence**: Writes clean, formatted JSON to disk for consumption by reporting and downstream agents.
+
 
