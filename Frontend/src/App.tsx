@@ -16,6 +16,7 @@ import { VRARViewModal } from './components/VRARViewModal';
 import { CommandPalette } from './components/CommandPalette';
 import { InfoModals } from './components/InfoModals';
 import { AuroraBackground } from './components/AuroraBackground';
+import { SandboxCapsuleView } from './components/SandboxCapsuleView';
 import { 
   initialNodes, 
   initialEdges, 
@@ -23,7 +24,7 @@ import {
   mockNotifications 
 } from './data/mockData';
 import { DependencyNode, ActiveTab, ScanHistoryEntry } from './types';
-import { Shield, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
+import { Shield, AlertCircle, Loader2, ExternalLink, Sparkles } from 'lucide-react';
 import { GithubIcon, formatGithubUrl } from './components/GithubIcon';
 import logoImg from './assets/logo.png';
 import { scanRepository, transformBackendResponse, saveScanToHistory, getLocalScanHistory } from './services/api';
@@ -242,8 +243,13 @@ export const App: React.FC = () => {
                 </a>
               </div>
 
-              <div className="text-[11px] text-stone-400 font-sans">
-                Polygon PoS Consensus • Protected by Sentinel AI
+              <div className="flex flex-col sm:flex-row items-center gap-3 text-[11px] text-stone-400 font-sans">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#121412] border border-stone-800 text-stone-300 font-mono text-[10px]">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>Model: Gemma 4 • Google GenAI SDK v1.0+</span>
+                  <a href="https://ai.google.dev/terms" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">Terms</a>
+                </span>
+                <span>Polygon PoS Consensus • Two-Ledger Architecture</span>
               </div>
             </div>
           </footer>
@@ -287,6 +293,14 @@ export const App: React.FC = () => {
                   currentRepo={currentRepo}
                   scanTxHash={scanTxHash}
                   stats={{ criticalCount, warningCount, safeCount, totalPackages }}
+                />
+              )}
+
+              {/* Sandbox & Exit Capsule Tab (Two Ledgers) */}
+              {activeTab === 'sandbox' && (
+                <SandboxCapsuleView
+                  currentRepo={currentRepo}
+                  onNavigateToBlockchain={() => setActiveTab('blockchain')}
                 />
               )}
 

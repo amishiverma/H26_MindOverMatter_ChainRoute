@@ -7,7 +7,8 @@ import {
   Coins, 
   Settings, 
   LogOut,
-  Bell
+  Bell,
+  FlaskConical
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import { ActiveTab } from '../types';
@@ -25,6 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navItems: { id: ActiveTab; icon: React.ComponentType<{ className?: string }>; label: string }[] = [
     { id: 'overview', icon: Home, label: 'Dashboard' },
+    { id: 'sandbox', icon: FlaskConical, label: 'Sandbox & Exit Capsule' },
     { id: 'analytics', icon: BarChart2, label: 'Analytics' },
     { id: 'graph', icon: Layers, label: 'Dependency DAG' },
     { id: 'vulnerabilities', icon: ShieldCheck, label: 'Threat Logs' },
