@@ -114,19 +114,33 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({
       <div
         key={node.id}
         onClick={() => onSelectNode(node)}
-        className={`group relative rounded-2xl p-4 sm:p-5 transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+        className={`group relative rounded-2xl p-4 sm:p-5 transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden ${
           isSelected
-            ? 'bg-white/[0.08] ring-2 ring-lime-400 border-white/20 shadow-2xl scale-[1.01]'
-            : 'bg-white/[0.04] hover:bg-white/[0.07] backdrop-blur-xl border border-white/10 hover:border-white/20 shadow-lg hover:shadow-xl'
+            ? 'bg-white/[0.09] ring-2 ring-lime-400/80 border border-lime-400/50 shadow-[0_0_30px_rgba(163,230,53,0.25),inset_0_0_20px_rgba(255,255,255,0.15)] scale-[1.01]'
+            : isCritical
+            ? 'bg-rose-950/20 hover:bg-rose-950/30 backdrop-blur-xl border border-rose-500/30 hover:border-rose-500/50 shadow-[0_0_24px_rgba(244,63,94,0.18),inset_0_0_16px_rgba(255,255,255,0.06)] hover:shadow-[0_0_36px_rgba(244,63,94,0.3),inset_0_0_20px_rgba(255,255,255,0.1)]'
+            : isWarning
+            ? 'bg-amber-950/20 hover:bg-amber-950/30 backdrop-blur-xl border border-amber-500/30 hover:border-amber-500/50 shadow-[0_0_22px_rgba(245,158,11,0.15),inset_0_0_16px_rgba(255,255,255,0.06)] hover:shadow-[0_0_32px_rgba(245,158,11,0.25),inset_0_0_20px_rgba(255,255,255,0.1)]'
+            : 'bg-white/[0.05] hover:bg-white/[0.08] backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 shadow-[0_0_20px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.37),inset_0_0_16px_rgba(255,255,255,0.06)] hover:shadow-[0_0_28px_rgba(16,185,129,0.2),inset_0_0_20px_rgba(255,255,255,0.1)]'
         }`}
       >
-        {/* Ambient Top Glow for High-Risk items */}
-        {isCritical && (
-          <div className="absolute -top-1 left-4 right-4 h-1 bg-gradient-to-r from-rose-500/0 via-rose-500/80 to-rose-500/0 rounded-full blur-[2px]" />
-        )}
-        {isWarning && (
-          <div className="absolute -top-1 left-4 right-4 h-1 bg-gradient-to-r from-amber-500/0 via-amber-500/80 to-amber-500/0 rounded-full blur-[2px]" />
-        )}
+        {/* 4-Sided Uniform Ambient Glow & Inner Reflection Ring */}
+        <div className={`absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 ${
+          isCritical
+            ? 'ring-1 ring-inset ring-rose-400/20 group-hover:ring-rose-400/40'
+            : isWarning
+            ? 'ring-1 ring-inset ring-amber-400/20 group-hover:ring-amber-400/40'
+            : 'ring-1 ring-inset ring-white/10 group-hover:ring-emerald-400/30'
+        }`} />
+
+        {/* Soft 4-edge ambient halo */}
+        <div className={`absolute -inset-[1px] rounded-2xl pointer-events-none blur-sm opacity-50 group-hover:opacity-80 transition-opacity duration-300 ${
+          isCritical
+            ? 'bg-gradient-to-r from-rose-500/20 via-rose-500/10 to-rose-500/20'
+            : isWarning
+            ? 'bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-amber-500/20'
+            : 'bg-gradient-to-r from-emerald-500/10 via-white/5 to-emerald-500/10'
+        }`} />
 
         <div>
           {/* Header Row: Category Badge + Risk Score */}
@@ -231,7 +245,7 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({
       {/* ─────────────────────────────────────────────────────────────────── */}
       {/* 1. TOP CONTROLS & FILTER TOOLBAR                                   */}
       {/* ─────────────────────────────────────────────────────────────────── */}
-      <div className="rounded-3xl bg-[#121412] border border-stone-800 p-5 sm:p-6 shadow-xl">
+      <div className="rounded-3xl bg-white/[0.06] backdrop-blur-xl border border-white/10 p-5 sm:p-6 shadow-[0_0_24px_rgba(255,255,255,0.03),0_8px_32px_rgba(0,0,0,0.37),inset_0_0_16px_rgba(255,255,255,0.05)]">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           
           {/* Left: Search Bar with Live Filter */}
@@ -242,7 +256,7 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Python packages, CVEs, or maintainers..."
-              className="w-full bg-[#0b0d0c] border border-stone-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-stone-100 placeholder-stone-500 font-sans focus:outline-none focus:border-lime-500/60 transition-colors"
+              className="w-full bg-white/[0.04] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-stone-100 placeholder-stone-500 font-sans focus:outline-none focus:border-emerald-500/60 transition-colors shadow-inner"
             />
             {searchQuery && (
               <button
@@ -257,7 +271,7 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({
           {/* Right: Category Tabs & Direct/Transitive Selectors */}
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Severity Tabs */}
-            <div className="flex items-center space-x-1 p-1 rounded-full bg-[#0b0d0c] border border-stone-800 text-xs">
+            <div className="flex items-center space-x-1 p-1 rounded-full bg-white/[0.04] border border-white/10 text-xs backdrop-blur-md">
               {(
                 [
                   { id: 'all', label: 'All', count: counts.all },
@@ -272,13 +286,13 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
                     filterSeverity === tab.id
                       ? tab.id === 'critical'
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold'
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold shadow-[0_0_12px_rgba(244,63,94,0.2)]'
                         : tab.id === 'warning'
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold shadow-[0_0_12px_rgba(245,158,11,0.2)]'
                         : tab.id === 'safe'
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold'
-                        : 'bg-stone-800 text-white font-bold border border-stone-700'
-                      : 'text-stone-400 hover:text-stone-200'
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                        : 'bg-white/[0.12] text-white font-bold border border-white/20 shadow-sm'
+                      : 'text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]'
                   }`}
                 >
                   <span>{tab.label}</span>
@@ -290,15 +304,15 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({
             </div>
 
             {/* Direct vs Transitive Filter */}
-            <div className="flex items-center space-x-1 p-1 rounded-full bg-[#0b0d0c] border border-stone-800 text-xs">
+            <div className="flex items-center space-x-1 p-1 rounded-full bg-white/[0.04] border border-white/10 text-xs backdrop-blur-md">
               {(['all', 'direct', 'transitive'] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
                   className={`px-3 py-1.5 rounded-full text-xs capitalize transition-all ${
                     categoryFilter === cat
-                      ? 'bg-lime-500/20 text-lime-300 border border-lime-500/40 font-bold'
-                      : 'text-stone-400 hover:text-stone-200'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                      : 'text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]'
                   }`}
                 >
                   {cat === 'all' ? 'All Tiers' : cat}

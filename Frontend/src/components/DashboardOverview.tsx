@@ -65,13 +65,18 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
         
         {/* Card 1: Python Runtime & Isolated Sandbox Status */}
-        <div className={`rounded-3xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group transition-all backdrop-blur-xl ${
+        <div className={`rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group transition-all duration-300 backdrop-blur-xl ${
           criticalCount > 0
-            ? 'bg-rose-950/25 border border-rose-500/40 text-rose-300 hover:border-rose-400/60 shadow-[0_8px_32px_rgba(244,63,94,0.15)]'
-            : 'bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 hover:border-emerald-400/50 shadow-[0_8px_32px_rgba(16,185,129,0.1)]'
+            ? 'bg-rose-950/25 border border-rose-500/40 text-rose-300 hover:border-rose-500/60 shadow-[0_0_28px_rgba(244,63,94,0.18),0_12px_36px_rgba(0,0,0,0.5),inset_0_0_20px_rgba(255,255,255,0.08)]'
+            : 'bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 hover:border-emerald-500/50 shadow-[0_0_28px_rgba(16,185,129,0.15),0_12px_36px_rgba(0,0,0,0.5),inset_0_0_20px_rgba(255,255,255,0.08)]'
         }`}>
+          {/* 4-Sided Uniform Halo Ring */}
+          <div className={`absolute inset-0 rounded-3xl pointer-events-none ring-1 ring-inset ${
+            criticalCount > 0 ? 'ring-rose-400/20 group-hover:ring-rose-400/40' : 'ring-emerald-400/20 group-hover:ring-emerald-400/40'
+          }`} />
+
           {/* Ambient Corner Glow */}
-          <div className={`absolute top-0 right-0 w-36 h-36 rounded-full blur-2xl pointer-events-none transition-colors ${
+          <div className={`absolute top-0 right-0 w-44 h-44 rounded-full blur-3xl pointer-events-none transition-colors ${
             criticalCount > 0 ? 'bg-rose-500/10 group-hover:bg-rose-500/20' : 'bg-emerald-500/10 group-hover:bg-emerald-500/20'
           }`} />
           
@@ -138,8 +143,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
 
         {/* Card 2: Two-Ledger AST & Double-Pass Pytest Verification */}
-        <div className="rounded-3xl bg-emerald-950/20 backdrop-blur-xl border border-emerald-500/30 text-emerald-400 p-6 flex flex-col justify-between shadow-[0_8px_32px_rgba(16,185,129,0.1)] relative overflow-hidden group hover:border-emerald-400/50 transition-all">
-          <div className="absolute top-0 right-0 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/20 transition-colors" />
+        <div className="rounded-3xl bg-emerald-950/20 backdrop-blur-xl border border-emerald-500/30 text-emerald-400 p-6 flex flex-col justify-between shadow-[0_0_28px_rgba(16,185,129,0.15),0_12px_36px_rgba(0,0,0,0.5),inset_0_0_20px_rgba(255,255,255,0.08)] relative overflow-hidden group hover:border-emerald-400/50 transition-all duration-300">
+          {/* 4-Sided Uniform Halo Ring */}
+          <div className="absolute inset-0 rounded-3xl pointer-events-none ring-1 ring-inset ring-emerald-400/20 group-hover:ring-emerald-400/40" />
+
+          <div className="absolute top-0 right-0 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-colors" />
 
           <div>
             <div className="flex items-center justify-between text-xs text-stone-400 mb-2">
@@ -194,12 +202,17 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
 
         {/* Card 3: Recent Python Package Threats & Telemetry Stream */}
-        <div className={`rounded-3xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group transition-all backdrop-blur-xl ${
+        <div className={`rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group transition-all duration-300 backdrop-blur-xl ${
           criticalCount > 0
-            ? 'bg-rose-950/25 border border-rose-500/40 text-rose-300 hover:border-rose-400/60 shadow-[0_8px_32px_rgba(244,63,94,0.15)]'
-            : 'bg-white/[0.06] border border-white/10 text-stone-100 hover:border-white/20 shadow-xl'
+            ? 'bg-rose-950/25 border border-rose-500/40 text-rose-300 hover:border-rose-400/60 shadow-[0_0_28px_rgba(244,63,94,0.18),0_12px_36px_rgba(0,0,0,0.5),inset_0_0_20px_rgba(255,255,255,0.08)]'
+            : 'bg-white/[0.06] border border-white/10 text-stone-100 hover:border-white/20 shadow-[0_0_24px_rgba(255,255,255,0.05),0_12px_36px_rgba(0,0,0,0.5),inset_0_0_20px_rgba(255,255,255,0.08)]'
         }`}>
-          <div className={`absolute top-0 right-0 w-36 h-36 rounded-full blur-2xl pointer-events-none transition-colors ${
+          {/* 4-Sided Uniform Halo Ring */}
+          <div className={`absolute inset-0 rounded-3xl pointer-events-none ring-1 ring-inset ${
+            criticalCount > 0 ? 'ring-rose-400/20 group-hover:ring-rose-400/40' : 'ring-white/10 group-hover:ring-emerald-400/30'
+          }`} />
+
+          <div className={`absolute top-0 right-0 w-44 h-44 rounded-full blur-3xl pointer-events-none transition-colors ${
             criticalCount > 0 ? 'bg-rose-500/10 group-hover:bg-rose-500/20' : 'bg-amber-500/10 group-hover:bg-amber-500/20'
           }`} />
 

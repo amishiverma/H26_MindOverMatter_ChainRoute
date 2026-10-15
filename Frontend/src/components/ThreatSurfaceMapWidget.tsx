@@ -104,9 +104,9 @@ export const ThreatSurfaceMapWidget: React.FC<ThreatSurfaceMapWidgetProps> = ({
   ];
 
   return (
-    <div className="rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_12px_32px_rgba(0,0,0,0.5)] p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden h-full group">
-      {/* Top subtle highlight reflection */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
+    <div className="rounded-3xl bg-white/[0.04] backdrop-blur-xl border border-white/10 shadow-[0_0_24px_rgba(255,255,255,0.04),0_12px_36px_rgba(0,0,0,0.5),inset_0_0_20px_rgba(255,255,255,0.08)] p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden h-full group hover:border-emerald-500/40 transition-all duration-300">
+      {/* 4-Sided Uniform Halo Ring */}
+      <div className="absolute inset-0 rounded-3xl pointer-events-none ring-1 ring-inset ring-white/10 group-hover:ring-emerald-400/30 transition-all duration-300" />
 
       {/* Header: Title + Status Pill */}
       <div>
