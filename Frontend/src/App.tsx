@@ -191,11 +191,9 @@ export const App: React.FC = () => {
               currentRepo={currentRepo}
               onRepoChange={setCurrentRepo}
             />
-            <FeaturesSection onExploreFeature={(feat) => {
+            <FeaturesSection onExploreFeature={() => {
               setCurrentView('dashboard');
-              if (feat.includes('Graph')) setActiveTab('graph');
-              else if (feat.includes('Capsule') || feat.includes('Sandbox')) setActiveTab('sandbox');
-              else setActiveTab('overview');
+              setActiveTab('sandbox');
             }} />
           </main>
 

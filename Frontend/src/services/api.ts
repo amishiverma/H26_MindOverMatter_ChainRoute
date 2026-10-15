@@ -1,4 +1,4 @@
-import { DependencyNode, DependencyEdge } from '../types';
+import { DependencyNode, DependencyEdge, DependencyExitCapsule } from '../types';
 
 // ============================================================================
 // BACKEND RESPONSE TYPES (matching your exact JSON schema)
@@ -315,7 +315,7 @@ export interface JobStateResponse {
   fact_ready?: boolean;
   claim_ready?: boolean;
   error?: string | null;
-  capsule?: any;
+  capsule?: DependencyExitCapsule | null;
   message?: string;
 }
 
@@ -331,17 +331,22 @@ export async function fetchJobState(jobId: string): Promise<JobStateResponse> {
   return response.json();
 }
 
+export function getJobStreamUrl(jobId: string): string {
+  return `${API_BASE}/job/${jobId}/stream`;
+}
+
 export async function startJob(
   repoPath: string,
   dependency: string,
   ecosystem: string = 'pypi'
-): Promise<{ job_id: string; capsule_id?: string; status: string }> {
+): Promise<{ job_id: string; capsule_id?: string; status: string; message?: string }> {
   const response = await fetch(`${API_BASE}/job/start`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ repo_path: repoPath, dependency, ecosystem }),
   });
-  if (!response.ok) {
+  // Handle 200 OK and 202 Accepted gracefully
+  if (!response.ok && response.status !== 202) {
     const error = await response.json().catch(() => ({ message: 'Failed to start job' }));
     throw new Error(error.message || `HTTP ${response.status}: Failed to start job`);
   }
