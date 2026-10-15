@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from typing import Any
@@ -50,6 +51,54 @@ class Claim:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+# ---------------------------------------------------------------------------
+# Robust JSON extraction helper (shared with risk.py)
+# ---------------------------------------------------------------------------
+
+_JSON_FENCE_PATTERN = re.compile(r"^```(?:json)?\s*\n?(.*?)\n?```$", re.DOTALL | re.IGNORECASE)
+
+def _extract_json(raw_text: str) -> str:
+    """
+    Robustly extract JSON from model output, handling:
+    - Bare JSON
+    - Markdown fences with or without language specifier (```json, ```JSON, ```)
+    - Leading/trailing whitespace
+    - Accidental prose before/after JSON (best effort)
+    """
+    text = raw_text.strip()
+    
+    # Try markdown fence first
+    fence_match = _JSON_FENCE_PATTERN.match(text)
+    if fence_match:
+        return fence_match.group(1).strip()
+    
+    # Try to find JSON object/array boundaries if wrapped in prose
+    first_brace = text.find('{')
+    first_bracket = text.find('[')
+    
+    if first_brace == -1 and first_bracket == -1:
+        return text
+    
+    start_idx = first_brace if (first_brace != -1 and (first_bracket == -1 or first_brace < first_bracket)) else first_bracket
+    end_char = '}' if text[start_idx] == '{' else ']'
+    
+    depth = 0
+    end_idx = -1
+    for i, ch in enumerate(text[start_idx:], start=start_idx):
+        if ch == text[start_idx]:
+            depth += 1
+        elif ch == end_char:
+            depth -= 1
+            if depth == 0:
+                end_idx = i
+                break
+    
+    if end_idx != -1:
+        return text[start_idx:end_idx + 1]
+    
+    return text
 
 
 def _get_client() -> genai.Client | None:
@@ -236,14 +285,10 @@ def propose(target_dependency: str, usage_context: str = "") -> list[Claim]:
         )
         raw_text = (response.text or "").strip()
 
-        # Clean markdown code fences if model enclosed JSON
-        if raw_text.startswith("```"):
-            raw_text = "\n".join(
-                line for line in raw_text.splitlines()
-                if not line.startswith("```")
-            ).strip()
+        # Robust JSON extraction
+        json_text = _extract_json(raw_text)
 
-        parsed = json.loads(raw_text)
+        parsed = json.loads(json_text)
 
         # Handle list vs dict with proposals key vs single proposal dict
         proposals_raw: list[dict[str, Any]] = []
@@ -263,13 +308,23 @@ def propose(target_dependency: str, usage_context: str = "") -> list[Claim]:
             diff = prop.get("diff_patch")
             rat = prop.get("rationale") or f"Recommended replacement for {target_dep}."
 
+            # Validate diff_patch format if present
+            if isinstance(diff, str) and diff.strip():
+                diff_stripped = diff.strip()
+                # Ensure it looks like a unified diff (starts with --- and +++)
+                if not (diff_stripped.startswith("---") and "+++" in diff_stripped.splitlines()[1] if len(diff_stripped.splitlines()) > 1 else False):
+                    logger.warning("propose: diff_patch does not appear to be valid unified diff format, discarding")
+                    diff_stripped = None
+            else:
+                diff_stripped = None
+
             claims.append(
                 Claim(
                     dependency=target_dep,
                     proposed_replacement=rep,
                     migration_steps=steps if isinstance(steps, list) else [str(steps)],
                     suggested_tests=tests if isinstance(tests, list) else [str(tests)],
-                    diff_patch=diff if isinstance(diff, str) and diff.strip() else None,
+                    diff_patch=diff_stripped,
                     rationale=rat,
                     provenance="model",
                     model_id=MODEL_ID,
