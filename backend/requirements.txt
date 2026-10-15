@@ -1,0 +1,19 @@
+# ===========================================================================
+# ChainRoute Backend Dependencies
+# ===========================================================================
+
+# Core API & Web Server (Dev 3 -- API, State & Contracts)
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+httpx>=0.25.0
+
+# AI & LLM Engine (Dev 2 -- Risk, Gaps & Proposal Engines via Gemma 4 / Gemini)
+google-genai>=1.0.0
+python-dotenv>=1.0.0
+
+# Sandbox Engine & Testing (Dev 1 -- Deterministic Verification & Process Isolation)
+pytest>=7.4.0
+uv>=0.1.0
+packaging>=23.0
+requests>=2.31.0
