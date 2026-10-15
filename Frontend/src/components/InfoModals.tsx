@@ -48,7 +48,7 @@ export const InfoModals: React.FC<InfoModalProps> = ({ type, onClose }) => {
                   <ul className="mt-4 space-y-2.5 text-xs font-sans text-stone-300">
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Unlimited public repositories</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Dependency DAG tree generator</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Public blockchain proofs</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Two-Ledger Exit Capsules</li>
                   </ul>
                 </div>
                 <button 
@@ -73,7 +73,7 @@ export const InfoModals: React.FC<InfoModalProps> = ({ type, onClose }) => {
                   <ul className="mt-4 space-y-2.5 text-xs font-sans text-stone-200">
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Autonomous Real-time AI Threat Explainer</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Automated GitHub CI/CD Action Bot</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Polygon Mainnet Merkle Anchors</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Python 3.12/3.13 Sandbox Isolation</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Continuous private repo scanning</li>
                   </ul>
                 </div>
@@ -128,11 +128,11 @@ export const InfoModals: React.FC<InfoModalProps> = ({ type, onClose }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2 font-sans text-xs">
               {[
                 { name: 'GitHub Actions', desc: 'Auto-blocks pull requests containing malicious dependencies', badge: 'Active' },
-                { name: 'Polygon PoS', desc: 'Immutable public consensus anchoring for repository AST Merkle trees', badge: 'Live' },
+                { name: 'Python 3.12/3.13 Runtime', desc: 'Subprocess & gVisor virtual environment sandbox isolation', badge: 'Active' },
                 { name: 'OSV.dev Network', desc: 'Automated global vulnerability and zero-day advisory ingestion', badge: 'Synced' },
                 { name: 'GitLab CI/CD', desc: 'Automated pipeline gates, quarantine jobs, and policy checks', badge: 'Verified' },
-                { name: 'Kubernetes Admission', desc: 'Enforces pod deployment policy from verified cryptographic digest', badge: 'Beta' },
-                { name: 'Sepolia Rollups', desc: 'Zero-gas testnet prototyping environment for local dev clusters', badge: 'Live' },
+                { name: 'Gemma 4 Intelligence', desc: 'AI threat reasoning, patch diff generation, and gap analysis', badge: 'Active' },
+                { name: 'PyPI Advisory Database', desc: 'Continuous vulnerability cross-referencing and checksum validation', badge: 'Live' },
               ].map((eco) => (
                 <div key={eco.name} className="p-4 rounded-2xl bg-[#0e1411]/80 border border-white/10 hover:border-emerald-500/30 transition-all">
                   <div className="flex items-center justify-between mb-2">
@@ -165,14 +165,14 @@ export const InfoModals: React.FC<InfoModalProps> = ({ type, onClose }) => {
               <div>
                 <div className="text-stone-300 font-bold mb-1.5 font-sans">1. Install ChainRoute CLI</div>
                 <div className="p-3.5 rounded-xl bg-[#0b100d] border border-white/10 text-emerald-300 font-mono flex items-center justify-between">
-                  <code>npm install -g @chainroute/cli</code>
+                  <code>pip install chainroute-cli</code>
                 </div>
               </div>
 
               <div>
                 <div className="text-stone-300 font-bold mb-1.5 font-sans">2. Run Local Repository Scan</div>
                 <div className="p-3.5 rounded-xl bg-[#0b100d] border border-white/10 text-stone-200 font-mono">
-                  <code>chainroute scan --repo . --strict --blockchain polygon</code>
+                  <code>chainroute scan --repo . --strict --sandbox</code>
                 </div>
               </div>
 
@@ -186,9 +186,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: chainroute/audit-action@v3
         with:
-          polygon_api_key: \${{ secrets.CHAINROUTE_POLYGON_KEY }}
+          chainroute_token: \${{ secrets.CHAINROUTE_TOKEN }}
           fail_on_zero_day: true`}
                 </pre>
               </div>

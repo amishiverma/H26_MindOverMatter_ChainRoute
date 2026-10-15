@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, Package, Shield, ExternalLink, ArrowRight, CornerDownLeft, Sparkles, Coins, FlaskConical } from 'lucide-react';
+import { Search, X, Package, Shield, ExternalLink, ArrowRight, CornerDownLeft, Sparkles, FlaskConical } from 'lucide-react';
 import { DependencyNode, ActiveTab } from '../types';
 
 interface CommandPaletteProps {
@@ -40,7 +40,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     { label: 'Sandbox & Exit Capsule', tab: 'sandbox' as ActiveTab, icon: FlaskConical },
     { label: 'Interactive Dependency DAG', tab: 'graph' as ActiveTab, icon: Package },
     { label: 'Threat Analytics Matrix', tab: 'analytics' as ActiveTab, icon: Sparkles },
-    { label: 'Polygon Blockchain Explorer', tab: 'blockchain' as ActiveTab, icon: Coins },
   ];
 
   const matchedNodes = nodes.filter(

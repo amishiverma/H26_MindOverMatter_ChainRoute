@@ -29,7 +29,7 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({ logs, onSelectRepo
             Recent Threat Activity &amp; Action Bot Log
           </h3>
           <p className="text-xs text-stone-400 mt-0.5">
-            Real-time automated policy decisions and blockchain verification proofs
+            Real-time automated policy decisions and AST verification proofs
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({ logs, onSelectRepo
                           ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
                           : log.actionStatus === 'FLAGGED SUSPICIOUS'
                           ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                          : log.actionStatus === 'ANCHORED'
+                          : log.actionStatus === 'SEALED'
                           ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-800/40'
                           : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                       }`}

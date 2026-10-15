@@ -56,11 +56,12 @@ export interface Maintainer {
   username?: string;
 }
 
-export interface NpmTimes {
+export interface ReleaseTimes {
   created: string;
   modified: string;
   [version: string]: string;
 }
+export type NpmTimes = ReleaseTimes;
 
 export interface ActivityLog {
   id: string;
@@ -69,24 +70,11 @@ export interface ActivityLog {
   timestamp: string;
   riskScore: number;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  actionStatus: 'BLOCKED PR' | 'AUDIT PASSED' | 'FLAGGED SUSPICIOUS' | 'ANCHORED';
+  actionStatus: 'BLOCKED PR' | 'AUDIT PASSED' | 'FLAGGED SUSPICIOUS' | 'ANCHORED' | 'SEALED';
   details: string;
   author: string;
   commitHash: string;
   txHash: string;
-}
-
-export interface BlockchainProof {
-  id: string;
-  txHash: string;
-  blockNumber: number;
-  network: 'Polygon Mainnet' | 'Sepolia Testnet';
-  timestamp: string;
-  merkleRoot: string;
-  repoScanDigest: string;
-  gasUsed: string;
-  status: 'Confirmed' | 'Minted';
-  validator: string;
 }
 
 export interface NotificationItem {
@@ -111,7 +99,7 @@ export interface ScanHistoryEntry {
   overallRiskScore: number;
 }
 
-export type ActiveTab = 'overview' | 'graph' | 'analytics' | 'vulnerabilities' | 'blockchain' | 'settings' | 'sandbox';
+export type ActiveTab = 'overview' | 'graph' | 'analytics' | 'vulnerabilities' | 'settings' | 'sandbox';
 
 // ============================================================================
 // TWO-LEDGER ARCHITECTURE DATA CONTRACTS

@@ -96,10 +96,10 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     : nodes.slice(0, 4);
 
   const availableRepos = [
-    'facebook/react',
-    'expressjs/express',
-    'web3/web3.js',
-    'tailwindlabs/tailwindcss',
+    'psf/requests',
+    'fastapi/fastapi',
+    'pydantic/pydantic',
+    'pallets/flask',
   ];
 
   return (
@@ -331,7 +331,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   <span className="text-[10px] text-stone-400 block">Lead DevSecOps Engineer</span>
                   <div className="mt-1.5 inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-[10px] text-emerald-400 font-medium">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span>Polygon PoS Mainnet Synced</span>
+                    <span>Python 3.12/3.13 Sandbox Active</span>
                   </div>
                 </div>
 

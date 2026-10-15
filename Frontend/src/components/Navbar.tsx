@@ -1,11 +1,10 @@
 import React from 'react';
-import { Terminal, Network, BookOpen, Layers, Coins, Cpu } from 'lucide-react';
+import { Terminal, BookOpen, Layers, ShieldCheck, Cpu } from 'lucide-react';
 import { GithubIcon, formatGithubUrl } from './GithubIcon';
 import logoImg from '../assets/logo.png';
 
 interface NavbarProps {
   onLaunchConsole: () => void;
-  onOpenVR: () => void;
   onOpenDocs: () => void;
   onOpenPricing: () => void;
   onOpenEcosystem: () => void;
@@ -15,7 +14,6 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({
   onLaunchConsole,
-  onOpenVR,
   onOpenDocs,
   onOpenPricing,
   onOpenEcosystem,
@@ -58,15 +56,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center space-x-8 relative z-10">
           <button
-            onClick={onOpenVR}
-            className="group flex items-center space-x-1.5 text-sm font-medium text-stone-300 hover:text-white transition-colors"
-          >
-            <Network className="w-4 h-4 text-stone-400 group-hover:text-emerald-400 transition-colors" />
-            <span>Attack Surface</span>
-            <span className="text-[10px] font-sans font-semibold px-2 py-0.5 rounded-full bg-white/[0.04] text-emerald-300 border border-white/10">3D</span>
-          </button>
-
-          <button
             onClick={onOpenEcosystem}
             className="group flex items-center space-x-1.5 text-sm font-medium text-stone-300 hover:text-white transition-colors"
           >
@@ -78,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onOpenPricing}
             className="group flex items-center space-x-1.5 text-sm font-medium text-stone-300 hover:text-white transition-colors"
           >
-            <Coins className="w-4 h-4 text-stone-400 group-hover:text-emerald-400 transition-colors" />
+            <ShieldCheck className="w-4 h-4 text-stone-400 group-hover:text-emerald-400 transition-colors" />
             <span>Pricing</span>
           </button>
 

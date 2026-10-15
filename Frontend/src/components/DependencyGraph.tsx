@@ -1,291 +1,455 @@
-import React, { useState } from 'react';
-import { Network, ZoomIn, ZoomOut, RefreshCw, Search, Filter } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { 
+  ShieldAlert, 
+  AlertTriangle, 
+  CheckCircle2, 
+  Search, 
+  Layers, 
+  FileCode2, 
+  ArrowUpRight, 
+  ExternalLink, 
+  GitBranch, 
+  Bug, 
+  Boxes, 
+  Sparkles,
+  ArrowRight
+} from 'lucide-react';
 import { DependencyNode, DependencyEdge } from '../types';
+import { mockCapsules } from '../data/mockCapsules';
 
 interface DependencyGraphProps {
   nodes: DependencyNode[];
-  edges: DependencyEdge[];
+  edges?: DependencyEdge[];
   onSelectNode: (node: DependencyNode) => void;
   selectedNodeId?: string;
   isFullScreen?: boolean;
 }
 
+type SeverityTab = 'all' | 'critical' | 'warning' | 'safe';
+
 export const DependencyGraph: React.FC<DependencyGraphProps> = ({
   nodes,
-  edges,
   onSelectNode,
   selectedNodeId,
-  isFullScreen = false,
 }) => {
-  const [zoom, setZoom] = useState(1);
-  const [filterSeverity, setFilterSeverity] = useState<'all' | 'critical' | 'warning' | 'safe'>('all');
+  const [filterSeverity, setFilterSeverity] = useState<SeverityTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'direct' | 'transitive'>('all');
 
-  // Position nodes spatially for a clean DAG layout
-  const nodePositions: Record<string, { x: number; y: number }> = {
-    'root-pkg': { x: 300, y: 70 },
-    'pkg-react-dom': { x: 120, y: 170 },
-    'pkg-zod-schema': { x: 280, y: 190 },
-    'pkg-axios-http': { x: 480, y: 170 },
-    'pkg-colors-ext': { x: 180, y: 290 },
-    'pkg-crypto-utils': { x: 360, y: 300 },
-    'pkg-event-stream': { x: 500, y: 310 },
-    'pkg-xz-native': { x: 140, y: 410 },
+  // Compute counts
+  const counts = useMemo(() => {
+    return {
+      all: nodes.length,
+      critical: nodes.filter((n) => n.riskScore >= 70 || n.status === 'critical').length,
+      warning: nodes.filter((n) => (n.riskScore >= 31 && n.riskScore < 70) || n.status === 'warning').length,
+      safe: nodes.filter((n) => n.riskScore <= 30 || n.status === 'safe').length,
+      direct: nodes.filter((n) => n.category === 'direct').length,
+      transitive: nodes.filter((n) => n.category === 'transitive').length,
+    };
+  }, [nodes]);
+
+  // Filtered list
+  const filteredNodes = useMemo(() => {
+    return nodes.filter((node) => {
+      // Severity check
+      if (filterSeverity === 'critical' && !(node.riskScore >= 70 || node.status === 'critical')) return false;
+      if (filterSeverity === 'warning' && !((node.riskScore >= 31 && node.riskScore < 70) || node.status === 'warning')) return false;
+      if (filterSeverity === 'safe' && !(node.riskScore <= 30 || node.status === 'safe')) return false;
+
+      // Category check (direct vs transitive)
+      if (categoryFilter === 'direct' && node.category !== 'direct') return false;
+      if (categoryFilter === 'transitive' && node.category !== 'transitive') return false;
+
+      // Search query check
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesName = node.name.toLowerCase().includes(query);
+        const matchesMaintainer = node.maintainer?.toLowerCase().includes(query);
+        const matchesCve = node.cves?.some((cve) => cve.toLowerCase().includes(query));
+        if (!matchesName && !matchesMaintainer && !matchesCve) return false;
+      }
+
+      return true;
+    });
+  }, [nodes, filterSeverity, categoryFilter, searchQuery]);
+
+  // Group filtered nodes by severity tier
+  const criticalList = useMemo(() => filteredNodes.filter((n) => n.riskScore >= 70 || n.status === 'critical'), [filteredNodes]);
+  const warningList = useMemo(() => filteredNodes.filter((n) => (n.riskScore >= 31 && n.riskScore < 70) || n.status === 'warning'), [filteredNodes]);
+  const safeList = useMemo(() => filteredNodes.filter((n) => n.riskScore <= 30 || n.status === 'safe'), [filteredNodes]);
+
+  // Helper to retrieve AST location preview
+  const getAstLocationPreview = (node: DependencyNode) => {
+    const capsule = mockCapsules[node.name];
+    if (capsule?.fact?.usage_locations && capsule.fact.usage_locations.length > 0) {
+      const first = capsule.fact.usage_locations[0];
+      return `${first.file_path} : line ${first.line_number}`;
+    }
+    // Fallback deterministic AST location based on node metadata
+    if (node.name.includes('fastapi') || node.name.includes('requests')) {
+      return `src/network/ingress_client.py : line 34`;
+    }
+    if (node.name.includes('pydantic')) {
+      return `src/models/schema_validator.py : line 19`;
+    }
+    if (node.name.includes('crypto')) {
+      return `src/security/cipher_engine.py : line 42`;
+    }
+    if (node.category === 'direct') {
+      return `requirements.txt : pinned`;
+    }
+    return `src/pipeline/workers.py : line 88`;
   };
 
-  const filteredNodes = nodes.filter((node) => {
-    if (filterSeverity === 'critical' && node.status !== 'critical') return false;
-    if (filterSeverity === 'warning' && node.status !== 'warning') return false;
-    if (filterSeverity === 'safe' && node.status !== 'safe') return false;
-    if (searchQuery && !node.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
+  // Helper to render an individual dependency card (Risk Cell)
+  const renderRiskCell = (node: DependencyNode) => {
+    const isSelected = selectedNodeId === node.id;
+    const isCritical = node.riskScore >= 70 || node.status === 'critical';
+    const isWarning = (node.riskScore >= 31 && node.riskScore < 70) || node.status === 'warning';
+    const isSafe = !isCritical && !isWarning;
+    const astPreview = getAstLocationPreview(node);
+    const hasCapsule = !!mockCapsules[node.name];
 
-  const filteredNodeIds = new Set(filteredNodes.map((n) => n.id));
+    return (
+      <div
+        key={node.id}
+        onClick={() => onSelectNode(node)}
+        className={`group relative rounded-2xl p-4 sm:p-5 transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+          isSelected
+            ? 'bg-white/[0.08] ring-2 ring-lime-400 border-white/20 shadow-2xl scale-[1.01]'
+            : 'bg-white/[0.04] hover:bg-white/[0.07] backdrop-blur-xl border border-white/10 hover:border-white/20 shadow-lg hover:shadow-xl'
+        }`}
+      >
+        {/* Ambient Top Glow for High-Risk items */}
+        {isCritical && (
+          <div className="absolute -top-1 left-4 right-4 h-1 bg-gradient-to-r from-rose-500/0 via-rose-500/80 to-rose-500/0 rounded-full blur-[2px]" />
+        )}
+        {isWarning && (
+          <div className="absolute -top-1 left-4 right-4 h-1 bg-gradient-to-r from-amber-500/0 via-amber-500/80 to-amber-500/0 rounded-full blur-[2px]" />
+        )}
+
+        <div>
+          {/* Header Row: Category Badge + Risk Score */}
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span
+                className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full font-bold tracking-wider border ${
+                  node.category === 'direct'
+                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                    : 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30'
+                }`}
+              >
+                {node.category === 'direct' ? 'Direct Dep' : 'Transitive Dep'}
+              </span>
+
+              {hasCapsule && (
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-lime-950/60 text-lime-400 border border-lime-800/40 flex items-center gap-1 font-semibold">
+                  <Sparkles className="w-2.5 h-2.5 text-lime-400" />
+                  <span>Capsule Sealed</span>
+                </span>
+              )}
+            </div>
+
+            {/* Risk Badge */}
+            <div
+              className={`px-2.5 py-1 rounded-xl text-xs font-mono font-extrabold flex items-center gap-1 shrink-0 border ${
+                isCritical
+                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                  : isWarning
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+              }`}
+            >
+              <span>{node.riskScore}</span>
+              <span className="text-[9px] font-normal opacity-70">/ 100</span>
+            </div>
+          </div>
+
+          {/* Package Name & Version */}
+          <div className="mb-3">
+            <h4 className="text-base sm:text-lg font-bold text-white group-hover:text-lime-300 transition-colors flex items-center justify-between gap-1">
+              <span className="truncate">{node.name}</span>
+              <ArrowUpRight className="w-4 h-4 text-stone-500 group-hover:text-lime-300 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 shrink-0" />
+            </h4>
+            <div className="text-xs text-stone-400 font-mono mt-0.5 flex items-center gap-2 flex-wrap">
+              <span className="text-stone-300">v{node.version}</span>
+              <span>•</span>
+              <span className="text-stone-400">{node.license || 'PyPI Package'}</span>
+              <span>•</span>
+              <span className="text-stone-500 truncate max-w-[140px]">{node.maintainer}</span>
+            </div>
+          </div>
+
+          {/* AST Usage Location Preview */}
+          <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 mb-3 text-xs">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono text-stone-400 uppercase tracking-wider mb-1">
+              <FileCode2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>AST Call Site:</span>
+            </div>
+            <code className="text-[11px] font-mono text-emerald-300 block truncate">
+              {astPreview}
+            </code>
+          </div>
+
+          {/* CVE or Threat summary */}
+          {node.cves && node.cves.length > 0 ? (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {node.cves.map((cve) => (
+                <span
+                  key={cve}
+                  className="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-300 border border-rose-500/20 text-[10px] font-mono font-medium flex items-center gap-1"
+                >
+                  <Bug className="w-2.5 h-2.5 text-rose-400" />
+                  <span>{cve}</span>
+                </span>
+              ))}
+            </div>
+          ) : (
+            <div className="text-[11px] text-stone-400 truncate">
+              {node.threatSummary || 'Zero known CVEs. Validated in clean Python sandbox.'}
+            </div>
+          )}
+        </div>
+
+        {/* Card Footer: Interactive Two-Ledger Audit CTA */}
+        <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-sans">
+          <span className="text-[11px] text-stone-400 flex items-center gap-1 font-mono">
+            <span>{isCritical ? '🚨 Action Required' : isWarning ? '⚠️ Heuristic Drift' : '✓ Verified Stable'}</span>
+          </span>
+          <span className="text-xs text-emerald-400 group-hover:underline flex items-center gap-1 font-medium">
+            <span>Inspect Capsule</span>
+            <ArrowRight className="w-3 h-3" />
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className={`rounded-3xl bg-[#161412]/80 backdrop-blur-xl border border-white/5 flex flex-col relative overflow-hidden shadow-2xl transition-all ${
-      isFullScreen ? 'h-[80vh] p-6' : 'h-full p-6'
-    }`}>
-      {/* Top Controls Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-800 relative z-20">
-        <div>
-          <span className="text-xs font-sans text-stone-400 block">Supply Chain DAG</span>
-          <h3 className="font-sans font-bold text-base sm:text-lg text-stone-100 flex items-center gap-2">
-            Interactive Dependency Topology
-            <span className="text-[10px] font-sans px-2.5 py-0.5 rounded-full bg-[#161a15] text-lime-400 border border-lime-800/40 font-medium">
-              Click node to audit
-            </span>
-          </h3>
-        </div>
-
-        {/* Filter & Zoom controls */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Quick Risk Filters */}
-          <div className="flex items-center space-x-1 p-1 rounded-full bg-[#0e100f] border border-stone-800 text-xs font-sans">
-            {(['all', 'critical', 'warning', 'safe'] as const).map((lvl) => (
+    <div className="space-y-6 font-sans">
+      
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 1. TOP CONTROLS & FILTER TOOLBAR                                   */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      <div className="rounded-3xl bg-[#121412] border border-stone-800 p-5 sm:p-6 shadow-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          
+          {/* Left: Search Bar with Live Filter */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Python packages, CVEs, or maintainers..."
+              className="w-full bg-[#0b0d0c] border border-stone-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-stone-100 placeholder-stone-500 font-sans focus:outline-none focus:border-lime-500/60 transition-colors"
+            />
+            {searchQuery && (
               <button
-                key={lvl}
-                onClick={() => setFilterSeverity(lvl)}
-                className={`px-3 py-1 rounded-full capitalize transition-all ${
-                  filterSeverity === lvl
-                    ? lvl === 'critical'
-                      ? 'bg-rose-500 text-white font-medium'
-                      : lvl === 'warning'
-                      ? 'bg-amber-500 text-stone-950 font-semibold'
-                      : lvl === 'safe'
-                      ? 'bg-lime-600 text-stone-950 font-semibold'
-                      : 'bg-gradient-to-r from-lime-600 via-emerald-700 to-stone-800 text-stone-100 font-semibold border border-lime-500/30'
-                    : 'text-stone-400 hover:text-white'
-                }`}
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 text-xs"
               >
-                {lvl}
+                Clear
               </button>
-            ))}
+            )}
           </div>
 
-          {/* Zoom Buttons */}
-          <div className="flex items-center space-x-1 p-1 rounded-full bg-[#1e1b18] border border-white/5">
-            <button
-              onClick={() => setZoom((z) => Math.min(z + 0.15, 1.6))}
-              className="p-1.5 rounded-full text-stone-400 hover:text-white transition-colors"
-              title="Zoom In"
-            >
-              <ZoomIn className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setZoom((z) => Math.max(z - 0.15, 0.7))}
-              className="p-1.5 rounded-full text-stone-400 hover:text-white transition-colors"
-              title="Zoom Out"
-            >
-              <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setZoom(1)}
-              className="p-1.5 rounded-full text-stone-400 hover:text-white transition-colors"
-              title="Reset Zoom"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Search Bar within Graph */}
-      <div className="my-3 relative z-20 max-w-xs">
-        <div className="relative">
-          <Search className="w-3.5 h-3.5 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Filter node by name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#0e100f] border border-stone-800 rounded-full pl-8 pr-3 py-1.5 text-xs font-sans text-white placeholder-stone-500 focus:outline-none focus:border-lime-700/50"
-          />
-        </div>
-      </div>
-
-      {/* Graph Canvas Container */}
-      <div className="relative flex-1 w-full min-h-[320px] bg-[#0b0d0c] rounded-2xl border border-stone-850 overflow-hidden p-4 flex items-center justify-center">
-        
-        {/* Scaled Graph Area */}
-        <div
-          className="relative transition-transform duration-200"
-          style={{
-            transform: `scale(${zoom})`,
-            width: '640px',
-            height: '460px',
-          }}
-        >
-          {/* SVG Connector Lines */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
-            <defs>
-              <linearGradient id="edgeSageGradient" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#84cc16" />
-                <stop offset="100%" stopColor="#4d7c0f" />
-              </linearGradient>
-              <linearGradient id="edgeGlowRose" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#65a30d" />
-                <stop offset="100%" stopColor="#f43f5e" />
-              </linearGradient>
-            </defs>
-
-            {edges.map((edge, idx) => {
-              const srcPos = nodePositions[edge.source];
-              const tgtPos = nodePositions[edge.target];
-              if (!srcPos || !tgtPos) return null;
-
-              const isSourceVisible = filteredNodeIds.has(edge.source);
-              const isTargetVisible = filteredNodeIds.has(edge.target);
-              if (!isSourceVisible || !isTargetVisible) return null;
-
-              const isHighRisk = edge.target === 'pkg-event-stream' || edge.target === 'pkg-xz-native';
-              const isHighlighted = hoveredNodeId === edge.source || hoveredNodeId === edge.target;
-
-              return (
-                <g key={idx}>
-                  <line
-                    x1={srcPos.x + 60}
-                    y1={srcPos.y + 24}
-                    x2={tgtPos.x + 60}
-                    y2={tgtPos.y + 24}
-                    stroke={isHighRisk ? 'url(#edgeGlowRose)' : 'url(#edgeSageGradient)'}
-                    strokeWidth={isHighlighted ? '2' : isHighRisk ? '1.8' : '1.2'}
-                    strokeOpacity={isHighlighted ? 1 : isHighRisk ? 0.9 : 0.6}
-                    strokeDasharray={isHighRisk ? '4 3' : undefined}
-                  />
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* Interactive Nodes */}
-          {filteredNodes.map((node) => {
-            const pos = nodePositions[node.id] || { x: 300, y: 200 };
-            const isSelected = selectedNodeId === node.id;
-            const isHovered = hoveredNodeId === node.id;
-            const isCritical = node.status === 'critical';
-            const isWarning = node.status === 'warning';
-
-            return (
-              <div
-                key={node.id}
-                onClick={() => onSelectNode(node)}
-                onMouseEnter={() => setHoveredNodeId(node.id)}
-                onMouseLeave={() => setHoveredNodeId(null)}
-                style={{
-                  position: 'absolute',
-                  left: `${pos.x}px`,
-                  top: `${pos.y}px`,
-                }}
-                className={`group cursor-pointer select-none transition-all duration-200 transform ${
-                  isHovered || isSelected ? 'scale-105 z-30' : 'z-10'
-                }`}
-              >
-                <div
-                  className={`relative w-44 rounded-2xl p-3.5 border transition-all ${
-                    isCritical
-                      ? isSelected
-                        ? 'bg-[#181212] border-rose-500 shadow-lg'
-                        : 'bg-[#141010] border-rose-500/60'
-                      : isWarning
-                      ? isSelected
-                        ? 'bg-[#181612] border-amber-500 shadow-md'
-                        : 'bg-[#141210] border-amber-500/50'
-                      : isSelected
-                      ? 'bg-[#161a15] border-lime-600 shadow-md'
-                      : 'bg-[#141614] border-stone-800 hover:border-lime-700/50'
+          {/* Right: Category Tabs & Direct/Transitive Selectors */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Severity Tabs */}
+            <div className="flex items-center space-x-1 p-1 rounded-full bg-[#0b0d0c] border border-stone-800 text-xs">
+              {(
+                [
+                  { id: 'all', label: 'All', count: counts.all },
+                  { id: 'critical', label: 'Critical [70-100]', count: counts.critical, color: 'text-rose-400' },
+                  { id: 'warning', label: 'Warning [31-69]', count: counts.warning, color: 'text-amber-400' },
+                  { id: 'safe', label: 'Safe [<30]', count: counts.safe, color: 'text-emerald-400' },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setFilterSeverity(tab.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
+                    filterSeverity === tab.id
+                      ? tab.id === 'critical'
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold'
+                        : tab.id === 'warning'
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
+                        : tab.id === 'safe'
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold'
+                        : 'bg-stone-800 text-white font-bold border border-stone-700'
+                      : 'text-stone-400 hover:text-stone-200'
                   }`}
                 >
-                  {/* Top Node Pill */}
-                  <div className="flex items-center justify-between text-[10px] font-sans mb-1.5">
-                    <span className="text-stone-400 capitalize">
-                      {node.category}
-                    </span>
-                    <span
-                      className={`px-2 py-0.2 rounded-full font-bold ${
-                        isCritical
-                          ? 'bg-rose-500/20 text-rose-400'
-                          : isWarning
-                          ? 'bg-amber-500/20 text-amber-400'
-                          : 'bg-lime-500/20 text-lime-400'
-                      }`}
-                    >
-                      {node.riskScore} Risk
-                    </span>
-                  </div>
+                  <span>{tab.label}</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-black/40">
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
 
-                  {/* Node Name */}
-                  <div className="font-sans text-xs font-bold text-stone-100 truncate group-hover:text-lime-400 transition-colors">
-                    {node.name}
-                  </div>
-                  <div className="text-[10px] font-sans text-stone-400 truncate">
-                    v{node.version}
-                  </div>
+            {/* Direct vs Transitive Filter */}
+            <div className="flex items-center space-x-1 p-1 rounded-full bg-[#0b0d0c] border border-stone-800 text-xs">
+              {(['all', 'direct', 'transitive'] as const).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategoryFilter(cat)}
+                  className={`px-3 py-1.5 rounded-full text-xs capitalize transition-all ${
+                    categoryFilter === cat
+                      ? 'bg-lime-500/20 text-lime-300 border border-lime-500/40 font-bold'
+                      : 'text-stone-400 hover:text-stone-200'
+                  }`}
+                >
+                  {cat === 'all' ? 'All Tiers' : cat}
+                </button>
+              ))}
+            </div>
 
-                  {/* Bottom Indicator for CVE */}
-                  <div className="mt-2 pt-1.5 border-t border-stone-800 flex items-center justify-between text-[10px] font-sans">
-                    <span className="text-stone-400">
-                      {node.cves.length > 0 ? `${node.cves.length} CVEs` : 'Clean AST'}
-                    </span>
-                    <span className={`font-semibold capitalize ${isCritical ? 'text-rose-400' : isWarning ? 'text-amber-400' : 'text-lime-400'}`}>
-                      {node.status}
-                    </span>
-                  </div>
+          </div>
 
-                  {/* Indicator dot */}
-                  {isCritical && (
-                    <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500" />
-                  )}
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 2. TRANSITIVE RISK MATRIX & CASCADE GRID                            */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {filterSeverity === 'all' ? (
+        <div className="space-y-8">
+          
+          {/* TIER 1: CRITICAL / ZERO-DAY BLAST RADIUS (70 - 100) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-rose-500/20">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center">
+                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    Critical Risk &amp; Zero-Day Incursions
+                    <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold">
+                      Risk Score: 70 – 100
+                    </span>
+                  </h3>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Severe vulnerabilities, maintainer account hijacking, and high-entropy binary bytecode.
+                  </p>
                 </div>
               </div>
-            );
-          })}
-        </div>
+              <span className="text-xs font-mono text-stone-400">
+                {criticalList.length} {criticalList.length === 1 ? 'Package' : 'Packages'}
+              </span>
+            </div>
 
-      </div>
+            {criticalList.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {criticalList.map(renderRiskCell)}
+              </div>
+            ) : (
+              <div className="p-8 rounded-2xl bg-white/[0.02] border border-stone-800 text-center text-xs text-stone-400 font-mono">
+                ✓ No critical zero-day threats matching current filter.
+              </div>
+            )}
+          </div>
 
-      {/* Legend / Status bar */}
-      <div className="flex flex-wrap items-center justify-between pt-3 mt-2 border-t border-stone-800 text-xs font-sans text-stone-400">
-        <div className="flex items-center space-x-4">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-lime-500" />
-            <span>&lt;30 Safe</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            <span>31-69 Warning</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-rose-400" />
-            <span>70+ Critical Zero-Day</span>
-          </span>
+          {/* TIER 2: SUSPICIOUS & WARNING DRIFT (31 - 69) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-amber-500/20">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+                  <AlertTriangle className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    Heuristic Drift &amp; Warning Tier
+                    <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold">
+                      Risk Score: 31 – 69
+                    </span>
+                  </h3>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Abnormal release cadence, protestware signals, and unpinned transitive dependencies.
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-mono text-stone-400">
+                {warningList.length} {warningList.length === 1 ? 'Package' : 'Packages'}
+              </span>
+            </div>
+
+            {warningList.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {warningList.map(renderRiskCell)}
+              </div>
+            ) : (
+              <div className="p-8 rounded-2xl bg-white/[0.02] border border-stone-800 text-center text-xs text-stone-400 font-mono">
+                ✓ No warning-tier dependencies matching current filter.
+              </div>
+            )}
+          </div>
+
+          {/* TIER 3: VERIFIED SAFE & PINNED PACKAGES (< 30) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    Verified Safe Baseline
+                    <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold">
+                      Risk Score: 0 – 30
+                    </span>
+                  </h3>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Double-baseline sandbox clean. Verified SLSA provenance with official maintainer signatures.
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-mono text-stone-400">
+                {safeList.length} {safeList.length === 1 ? 'Package' : 'Packages'}
+              </span>
+            </div>
+
+            {safeList.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {safeList.map(renderRiskCell)}
+              </div>
+            ) : (
+              <div className="p-8 rounded-2xl bg-white/[0.02] border border-stone-800 text-center text-xs text-stone-400 font-mono">
+                ✓ No safe dependencies matching current filter.
+              </div>
+            )}
+          </div>
+
         </div>
-        <span className="text-[11px] text-emerald-400 font-medium">
-          Click any node to inspect Autonomous AI Threat Explanation
-        </span>
-      </div>
+      ) : (
+        /* Specific Tab Filter View */
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+            <span className="text-sm font-bold text-stone-200 capitalize">
+              {filterSeverity} Dependency Cells ({filteredNodes.length})
+            </span>
+            <span className="text-xs text-stone-400">
+              Showing matching packages across direct and transitive tiers
+            </span>
+          </div>
+
+          {filteredNodes.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredNodes.map(renderRiskCell)}
+            </div>
+          ) : (
+            <div className="p-12 rounded-3xl bg-white/[0.02] border border-stone-800 text-center space-y-2">
+              <Boxes className="w-8 h-8 text-stone-600 mx-auto" />
+              <div className="text-sm font-semibold text-stone-300">No matching dependencies</div>
+              <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                No Python packages matched your filter criteria. Try adjusting the search term or switching to "All".
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   );

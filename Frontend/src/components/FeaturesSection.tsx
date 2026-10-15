@@ -160,13 +160,13 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onExploreFeatu
             </div>
           </motion.div>
 
-          {/* Card 3 (Left): Blockchain Trust Anchor - Slide in from Left */}
+          {/* Card 3 (Left): Deterministic Sandbox & Exit Capsule - Slide in from Left */}
           <motion.div
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            onClick={() => onExploreFeature('Blockchain')}
+            onClick={() => onExploreFeature('Sandbox')}
             className="relative rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_12px_36px_rgba(0,0,0,0.5)] hover:border-white/20 p-7 sm:p-8 transition-all duration-300 group flex flex-col justify-between cursor-pointer overflow-hidden"
           >
             {/* Top-edge light reflection */}
@@ -178,40 +178,40 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onExploreFeatu
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <span className="text-xs font-sans px-3 py-1 rounded-full bg-white/[0.04] text-emerald-300 border border-white/10 font-medium">
-                  Polygon PoS Proof
+                  Python 3.12 / 3.13
                 </span>
               </div>
 
               <h3 className="text-2xl font-sans font-bold text-white mb-3 flex items-center gap-2 group-hover:text-emerald-300 transition-colors">
-                Blockchain Trust Anchor
+                Deterministic Sandbox &amp; Exit Capsule
                 <ArrowUpRight className="w-5 h-5 text-emerald-400 opacity-60 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </h3>
 
               <p className="text-stone-400 text-sm sm:text-base leading-relaxed mb-6 font-sans">
-                Every clean repository scan creates a cryptographic Merkle root anchored immutably to Polygon Mainnet. Prevent malicious repo tampering, build-system poisoning, and historical revisionism.
+                Target repositories are cloned and isolated in automated Python virtual environments. Empirical double-pass pytest execution and AST line call mapping verify safe drop-in package replacements before landing in production.
               </p>
             </div>
 
-            {/* Blockchain Receipt Mock */}
+            {/* Sandbox Verification Receipt Mock */}
             <div className="bg-black/30 border border-white/5 rounded-2xl p-5 font-mono text-xs">
               <div className="flex items-center justify-between pb-2.5 border-b border-white/5">
-                <span className="text-stone-400">NETWORK:</span>
+                <span className="text-stone-400">ENVIRONMENT:</span>
                 <span className="text-emerald-400 flex items-center gap-1 font-semibold">
-                  <Check className="w-3.5 h-3.5" /> Polygon PoS Validated
+                  <Check className="w-3.5 h-3.5" /> Python venv Sandbox Active
                 </span>
               </div>
               <div className="mt-2.5 space-y-1.5 text-stone-400">
                 <div className="flex justify-between">
-                  <span>BLOCK HEIGHT:</span>
-                  <span className="text-white font-bold">#5,928,174</span>
+                  <span>PYTEST SUITE:</span>
+                  <span className="text-emerald-400 font-bold">100% Passed (14/14)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>MERKLE ROOT:</span>
-                  <span className="text-emerald-400 truncate max-w-[200px]">0x184fa9e283109a12cce49104fae9021481903be9</span>
+                  <span>AST LOCATIONS:</span>
+                  <span className="text-stone-300 truncate max-w-[200px]">4 Call Sites Mapped</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>TX RECEIPT:</span>
-                  <span className="text-stone-300 truncate max-w-[200px]">0x8f4d92a39b4012948123acbbef01293e8f49e79b</span>
+                  <span>SWAP VERDICT:</span>
+                  <span className="text-emerald-300 font-semibold">APPROVED_SWAP</span>
                 </div>
               </div>
             </div>

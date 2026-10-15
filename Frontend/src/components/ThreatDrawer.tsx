@@ -516,15 +516,15 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
               )}
             </div>
 
-            {/* Polygon Audit Receipt */}
+            {/* AST Verification Receipt */}
             {node.polygonHash && (
               <div className="mb-6 p-3.5 rounded-2xl bg-[#0b0d0c] border border-stone-800 text-xs font-sans">
                 <div className="flex items-center justify-between text-[11px] text-stone-400 pb-2 border-b border-stone-800">
                   <span className="flex items-center gap-1 text-emerald-400 font-medium">
-                    <Lock className="w-3.5 h-3.5" />
-                    Polygon Audit Receipt
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    AST Verification Digest
                   </span>
-                  <span className="text-stone-500 font-mono">Block #5,928,174</span>
+                  <span className="text-stone-500 font-mono">Python 3.12 Sealed</span>
                 </div>
                 <div className="flex items-center justify-between mt-2.5">
                   <span className="text-emerald-300 font-mono truncate max-w-[240px]">{node.polygonHash}</span>

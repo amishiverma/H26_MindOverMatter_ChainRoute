@@ -8,11 +8,9 @@ import { DashboardOverview } from './components/DashboardOverview';
 import { DependencyGraph } from './components/DependencyGraph';
 import { AnalyticsChart } from './components/AnalyticsChart';
 import { VulnerabilityLogsView } from './components/VulnerabilityLogsView';
-import { BlockchainProofsView } from './components/BlockchainProofsView';
 import { SettingsModal } from './components/SettingsModal';
 import { ThreatDrawer } from './components/ThreatDrawer';
 import { ScanningModal } from './components/ScanningModal';
-import { VRARViewModal } from './components/VRARViewModal';
 import { CommandPalette } from './components/CommandPalette';
 import { InfoModals } from './components/InfoModals';
 import { AuroraBackground } from './components/AuroraBackground';
@@ -39,7 +37,7 @@ export const App: React.FC = () => {
   // Data states
   const [nodes, setNodes] = useState<DependencyNode[]>(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
-  const [currentRepo, setCurrentRepo] = useState('facebook/react');
+  const [currentRepo, setCurrentRepo] = useState('psf/requests');
   const [selectedNode, setSelectedNode] = useState<DependencyNode | null>(null);
   const [scanTxHash, setScanTxHash] = useState<string | null>(null);
 
@@ -47,7 +45,6 @@ export const App: React.FC = () => {
   const [scanningRepo, setScanningRepo] = useState<string | null>(null);
   const [scanLoading, setScanLoading] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
-  const [showVRModal, setShowVRModal] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [infoModalType, setInfoModalType] = useState<'pricing' | 'ecosystem' | 'docs' | null>(null);
 
@@ -84,7 +81,7 @@ export const App: React.FC = () => {
       setScanTxHash(txHash);
       
       const cleanName = repoUrl.replace('https://github.com/', '').replace('.git', '');
-      setCurrentRepo(cleanName || 'facebook/react');
+      setCurrentRepo(cleanName || 'psf/requests');
       
       // Save to local history
       const criticalCount = newNodes.filter(n => n.status === 'critical').length;
@@ -180,7 +177,6 @@ export const App: React.FC = () => {
           {/* Top Navbar */}
           <Navbar
             onLaunchConsole={() => setCurrentView('dashboard')}
-            onOpenVR={() => setShowVRModal(true)}
             onOpenDocs={() => setInfoModalType('docs')}
             onOpenPricing={() => setInfoModalType('pricing')}
             onOpenEcosystem={() => setInfoModalType('ecosystem')}
@@ -198,7 +194,7 @@ export const App: React.FC = () => {
             <FeaturesSection onExploreFeature={(feat) => {
               setCurrentView('dashboard');
               if (feat.includes('Graph')) setActiveTab('graph');
-              else if (feat.includes('Blockchain')) setActiveTab('blockchain');
+              else if (feat.includes('Capsule') || feat.includes('Sandbox')) setActiveTab('sandbox');
               else setActiveTab('overview');
             }} />
           </main>
@@ -213,7 +209,7 @@ export const App: React.FC = () => {
                 <div>
                   <span className="font-bold text-white tracking-wider">ChainRoute</span>
                   <span className="text-stone-500 block text-[10px]">
-                    Autonomous DevSecOps & Blockchain Trust Layer
+                    Autonomous Python 3.12/3.13 Dependency Resilience
                   </span>
                 </div>
               </div>
@@ -227,9 +223,6 @@ export const App: React.FC = () => {
                 </button>
                 <button onClick={() => setInfoModalType('ecosystem')} className="hover:text-lime-400 transition-colors">
                   Ecosystem
-                </button>
-                <button onClick={() => setShowVRModal(true)} className="hover:text-emerald-300 transition-colors text-emerald-400">
-                  Attack Surface Map
                 </button>
                 <a
                   href={formatGithubUrl(currentRepo)}
@@ -249,7 +242,7 @@ export const App: React.FC = () => {
                   <span>Model: Gemma 4 • Google GenAI SDK v1.0+</span>
                   <a href="https://ai.google.dev/terms" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">Terms</a>
                 </span>
-                <span>Polygon PoS Consensus • Two-Ledger Architecture</span>
+                <span>Python 3.12/3.13 Sandbox • Two-Ledger Architecture</span>
               </div>
             </div>
           </footer>
@@ -286,10 +279,9 @@ export const App: React.FC = () => {
               {activeTab === 'overview' && (
                 <DashboardOverview
                   onScanRepo={() => handleStartScan(`https://github.com/${currentRepo}`)}
-                  onVerifyHash={() => setActiveTab('blockchain')}
+                  onNavigateToSandbox={() => setActiveTab('sandbox')}
                   onCtaClick={() => setInfoModalType('pricing')}
                   onSelectItem={handleSelectPackageByName}
-                  onOpenVR={() => setShowVRModal(true)}
                   currentRepo={currentRepo}
                   scanTxHash={scanTxHash}
                   stats={{ criticalCount, warningCount, safeCount, totalPackages }}
@@ -300,7 +292,6 @@ export const App: React.FC = () => {
               {activeTab === 'sandbox' && (
                 <SandboxCapsuleView
                   currentRepo={currentRepo}
-                  onNavigateToBlockchain={() => setActiveTab('blockchain')}
                 />
               )}
 
@@ -310,10 +301,10 @@ export const App: React.FC = () => {
                   <div className="flex items-center justify-between pb-3 border-b border-white/5">
                     <div>
                       <h2 className="text-2xl font-sans font-bold text-stone-100">
-                        Dependency Graph & DAG Topology
+                        Transitive Risk Matrix &amp; Cascade Grid
                       </h2>
                       <p className="text-xs text-stone-400 font-sans mt-0.5">
-                        Interactive supply chain visualization for{' '}
+                        Tiered AST vulnerability breakdown and direct/transitive blast radius for{' '}
                         <a
                           href={`https://github.com/${currentRepo}`}
                           target="_blank"
@@ -343,7 +334,7 @@ export const App: React.FC = () => {
                   <div className="flex items-center justify-between pb-3 border-b border-white/5">
                     <div>
                       <h2 className="text-2xl font-sans font-bold text-stone-100">
-                        Threat Analytics & Risk Metrics
+                        Threat Analytics &amp; Risk Metrics
                       </h2>
                       <p className="text-xs text-stone-400 font-sans mt-0.5">
                         Time-series anomaly progressions, dormant code spikes, and risk index
@@ -361,13 +352,6 @@ export const App: React.FC = () => {
                     nodes={nodes}
                     onSelectNode={(node) => setSelectedNode(node)}
                   />
-                </div>
-              )}
-
-              {/* Blockchain Proofs Tab */}
-              {activeTab === 'blockchain' && (
-                <div className="max-w-[1600px] mx-auto">
-                  <BlockchainProofsView scanTxHash={scanTxHash} />
                 </div>
               )}
 
@@ -401,21 +385,6 @@ export const App: React.FC = () => {
           onCancel={handleScanCancel}
           isLoading={scanLoading}
           error={scanError}
-        />
-      )}
-
-      {/* AUTONOMOUS SUPPLY CHAIN ATTACK SURFACE MODAL */}
-      {showVRModal && (
-        <VRARViewModal
-          onClose={() => setShowVRModal(false)}
-          onSelectNodeByName={(name) => {
-            const found = nodes.find((n) => n.name === name);
-            if (found) {
-              setSelectedNode(found);
-              setCurrentView('dashboard');
-              setShowVRModal(false);
-            }
-          }}
         />
       )}
 

@@ -14,15 +14,15 @@ export const ScanningModal: React.FC<ScanningModalProps> = ({ repoUrl, onComplet
   const [currentStep, setCurrentStep] = useState(0);
   const [logs, setLogs] = useState<string[]>([
     `[INIT] Handshaking with GitHub REST/GraphQL API for target: ${repoUrl}`,
-    '[AST] Cloning repository tree & manifests (package.json, yarn.lock, pnpm-lock)...',
+    '[AST] Cloning repository tree & Python manifests (requirements.txt, pyproject.toml, Pipfile)...',
   ]);
 
   const steps = [
-    { title: 'Repo Manifests Ingestion', icon: Cpu },
+    { title: 'Python Manifests Ingestion', icon: Cpu },
     { title: 'Dependency DAG Synthesis', icon: Terminal },
     { title: 'Sentinel AI Threat Explainer', icon: Sparkles },
-    { title: 'OSV.dev & CVE Query Engine', icon: ShieldAlert },
-    { title: 'Polygon Blockchain Anchoring', icon: Lock },
+    { title: 'OSV.dev & PyPI Advisory Engine', icon: ShieldAlert },
+    { title: 'Two-Ledger Sandbox & Capsule', icon: CheckCircle2 },
   ];
 
   // Simulation timers (for visual feedback during real API call)
@@ -34,7 +34,7 @@ export const ScanningModal: React.FC<ScanningModalProps> = ({ repoUrl, onComplet
       setCurrentStep(1);
       setLogs((prev) => [
         ...prev,
-        '[DAG] Parsed dependency tree across transitive tiers...',
+        '[DAG] Parsed dependency tree across Python transitive tiers...',
         '[GRAPH] Building adjacency matrix for cyclic vulnerability detection...',
       ]);
     }, 900);
@@ -45,7 +45,7 @@ export const ScanningModal: React.FC<ScanningModalProps> = ({ repoUrl, onComplet
       setLogs((prev) => [
         ...prev,
         '[AI] Sentinel AI engine analyzing maintainer velocity anomalies...',
-        '[ALERT] High-entropy payload identified in transitive node: event-stream-patch.',
+        '[ALERT] High-entropy payload identified in transitive node: urllib3-patch.',
       ]);
     }, 1800);
 
@@ -54,8 +54,8 @@ export const ScanningModal: React.FC<ScanningModalProps> = ({ repoUrl, onComplet
       setCurrentStep(3);
       setLogs((prev) => [
         ...prev,
-        '[OSV] Cross-matching with OSV.dev & GitHub Advisory Database...',
-        '[HASH] Constructing SHA-256 Merkle tree state digest for Polygon commit...',
+        '[OSV] Cross-matching with OSV.dev & PyPI Advisory Database...',
+        '[SANDBOX] Double-pass Pytest execution running in Python 3.12 sandbox...',
       ]);
     }, 2700);
 
@@ -64,8 +64,8 @@ export const ScanningModal: React.FC<ScanningModalProps> = ({ repoUrl, onComplet
       setCurrentStep(4);
       setLogs((prev) => [
         ...prev,
-        '[BLOCKCHAIN] Submitting anchor transaction to Polygon Mainnet...',
-        '[WAIT] Awaiting block finality confirmation...',
+        '[LEDGER] Merging Fact Ledger sandbox proofs with Gemma 4 Claim Ledger...',
+        '[VERDICT] Exit Capsule sealed with empirical test verification.',
       ]);
     }, 3600);
 
@@ -83,7 +83,7 @@ export const ScanningModal: React.FC<ScanningModalProps> = ({ repoUrl, onComplet
       setProgress(100);
       setLogs((prev) => [
         ...prev,
-        '[BLOCKCHAIN] Anchored to Polygon Mainnet. Transaction confirmed.',
+        '[LEDGER] Dependency Exit Capsule sealed and verified.',
         '[SUCCESS] Security Control Center is primed and ready.',
       ]);
       const timer = setTimeout(() => onComplete(), 800);
@@ -230,7 +230,7 @@ export const ScanningModal: React.FC<ScanningModalProps> = ({ repoUrl, onComplet
                 key={index}
                 className={`flex items-start gap-2 ${log.includes('[ALERT]') || log.includes('Zero-Day') || log.includes('[ERROR]')
                   ? 'text-rose-400 font-semibold'
-                  : log.includes('[SUCCESS]') || log.includes('[BLOCKCHAIN]')
+                  : log.includes('[SUCCESS]') || log.includes('[LEDGER]') || log.includes('[SANDBOX]')
                   ? 'text-lime-400 font-semibold'
                   : log.includes('[AI]')
                   ? 'text-lime-300'

@@ -25,7 +25,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ onCtaClick }) => {
         </h3>
 
         <p className="text-xs sm:text-sm text-stone-300 font-sans leading-relaxed">
-          Autonomous zero-day heuristic protection and instant Polygon blockchain anchoring for modern enterprise software supply chains.
+          Autonomous zero-day heuristic protection and verifiable AST double-pass sandbox testing for modern enterprise Python software supply chains.
         </p>
       </div>
 

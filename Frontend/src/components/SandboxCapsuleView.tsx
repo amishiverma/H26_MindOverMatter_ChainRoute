@@ -29,32 +29,23 @@ import { mockCapsules } from '../data/mockCapsules';
 
 interface SandboxCapsuleViewProps {
   currentRepo?: string;
-  onNavigateToBlockchain?: () => void;
 }
 
 export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
-  currentRepo = 'facebook/react',
-  onNavigateToBlockchain,
+  currentRepo = 'psf/requests',
 }) => {
-  const [selectedDep, setSelectedDep] = useState<string>('event-stream-patch');
+  const [selectedDep, setSelectedDep] = useState<string>('urllib3-patch');
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
-  const [simStep, setSimStep] = useState<number>(4); // 4 = complete
-  const [copiedHash, setCopiedHash] = useState<boolean>(false);
+  const [simStep, setSimStep] = useState<number>(4); // 4 = complete deterministic state
   const [copiedCapsule, setCopiedCapsule] = useState<boolean>(false);
 
   const capsule: DependencyExitCapsule =
-    mockCapsules[selectedDep] || mockCapsules['event-stream-patch'];
+    mockCapsules[selectedDep] || mockCapsules['urllib3-patch'];
 
   const handleRunSimulation = () => {
     setIsSimulating(true);
-    setSimStep(1);
-
-    setTimeout(() => setSimStep(2), 800);
-    setTimeout(() => setSimStep(3), 1600);
-    setTimeout(() => {
-      setSimStep(4);
-      setIsSimulating(false);
-    }, 2400);
+    setSimStep(4);
+    setIsSimulating(false);
   };
 
   const handleExportJSON = () => {
@@ -76,14 +67,6 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
     navigator.clipboard.writeText(capsule.capsule_id);
     setCopiedCapsule(true);
     setTimeout(() => setCopiedCapsule(false), 2000);
-  };
-
-  const handleCopyTxHash = () => {
-    if (capsule.chain_tx_hash) {
-      navigator.clipboard.writeText(capsule.chain_tx_hash);
-      setCopiedHash(true);
-      setTimeout(() => setCopiedHash(false), 2000);
-    }
   };
 
   const isApproved = capsule.merge_decision === 'APPROVED';
@@ -124,7 +107,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
               <span className="text-[11px] font-semibold text-stone-400 px-2 uppercase tracking-wider">
                 Target:
               </span>
-              {(['event-stream-patch', 'liblzma-native-async', 'ansi-colors-turbo'] as const).map((dep) => (
+              {(['urllib3-patch', 'cryptography-cffi', 'pydantic-core-async'] as const).map((dep) => (
                 <button
                   key={dep}
                   onClick={() => setSelectedDep(dep)}
@@ -298,16 +281,6 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
             <Download className="w-3.5 h-3.5 text-emerald-400" />
             <span>Export Capsule JSON</span>
           </button>
-
-          {capsule.chain_tx_hash && (
-            <button
-              onClick={onNavigateToBlockchain}
-              className="px-4 py-2.5 rounded-xl bg-emerald-950/30 hover:bg-emerald-950/50 text-emerald-300 border border-emerald-800/50 text-xs font-semibold flex items-center gap-2 transition-all"
-            >
-              <Lock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Polygon Proof</span>
-            </button>
-          )}
         </div>
       </div>
 

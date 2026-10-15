@@ -4,8 +4,6 @@ import { Settings, Save, Key, Globe, Shield, Check, Cpu, Terminal } from 'lucide
 export const SettingsModal: React.FC = () => {
   const [ghToken, setGhToken] = useState('ghp_************************************');
   const [sensitivity, setSensitivity] = useState<'permissive' | 'balanced' | 'strict'>('strict');
-  const [rpcUrl, setRpcUrl] = useState('https://polygon-mainnet.g.alchemy.com/v2/demo-chainroute-key');
-  const [network, setNetwork] = useState<'polygon' | 'sepolia'>('polygon');
   const [autoQuarantine, setAutoQuarantine] = useState(true);
   const [saved, setSaved] = useState(false);
 
@@ -26,7 +24,7 @@ export const SettingsModal: React.FC = () => {
           ChainRoute System Settings
         </h2>
         <p className="text-sm text-stone-400 mt-1">
-          Manage GitHub authentication tokens, heuristic sensitivity gates, and blockchain RPC endpoints.
+          Manage GitHub authentication tokens, AST heuristic sensitivity gates, and Python virtual environment testbed configurations.
         </p>
       </div>
 
@@ -78,42 +76,41 @@ export const SettingsModal: React.FC = () => {
           </div>
         </div>
 
-        {/* Blockchain Network & RPC */}
+        {/* Python Sandbox & Virtualenv Runner Configuration */}
         <div className="space-y-4 pt-4 border-t border-stone-850">
           <label className="text-stone-200 font-medium flex items-center gap-2">
-            <Globe className="w-4 h-4 text-lime-400" />
-            Blockchain Anchoring Network &amp; Custom RPC
+            <Cpu className="w-4 h-4 text-lime-400" />
+            Python Sandbox Environment &amp; Virtualenv Runner
           </label>
 
           <div className="flex gap-6">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="radio"
-                name="net"
-                checked={network === 'polygon'}
-                onChange={() => setNetwork('polygon')}
+                name="pyversion"
+                defaultChecked
                 className="accent-lime-500"
               />
-              <span className="text-stone-200 text-sm">Polygon PoS (Mainnet)</span>
+              <span className="text-stone-200 text-sm">Python 3.12 (Standard)</span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="radio"
-                name="net"
-                checked={network === 'sepolia'}
-                onChange={() => setNetwork('sepolia')}
+                name="pyversion"
                 className="accent-lime-500"
               />
-              <span className="text-stone-200 text-sm">Sepolia Testnet</span>
+              <span className="text-stone-200 text-sm">Python 3.13 (Free-Threaded Preview)</span>
             </label>
           </div>
 
-          <input
-            type="text"
-            value={rpcUrl}
-            onChange={(e) => setRpcUrl(e.target.value)}
-            className="w-full bg-[#0b0d0c] border border-stone-800 rounded-xl p-3 text-white font-mono text-xs focus:outline-none focus:border-lime-600/50 transition-colors"
-          />
+          <div className="space-y-2">
+            <div className="text-xs text-stone-400">Sandbox Test Runner Command:</div>
+            <input
+              type="text"
+              defaultValue="pytest -q --disable-warnings --maxfail=1"
+              className="w-full bg-[#0b0d0c] border border-stone-800 rounded-xl p-3 text-white font-mono text-xs focus:outline-none focus:border-lime-600/50 transition-colors"
+            />
+          </div>
         </div>
 
         {/* Auto Quarantine Toggle */}

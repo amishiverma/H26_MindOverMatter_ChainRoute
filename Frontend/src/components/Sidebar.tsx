@@ -4,7 +4,6 @@ import {
   BarChart2, 
   Layers, 
   ShieldCheck, 
-  Coins, 
   Settings, 
   LogOut,
   Bell,
@@ -28,9 +27,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'overview', icon: Home, label: 'Dashboard' },
     { id: 'sandbox', icon: FlaskConical, label: 'Sandbox & Exit Capsule' },
     { id: 'analytics', icon: BarChart2, label: 'Analytics' },
-    { id: 'graph', icon: Layers, label: 'Dependency DAG' },
+    { id: 'graph', icon: Layers, label: 'Risk Matrix' },
     { id: 'vulnerabilities', icon: ShieldCheck, label: 'Threat Logs' },
-    { id: 'blockchain', icon: Coins, label: 'Trust Anchor' },
     { id: 'settings', icon: Settings, label: 'Settings' },
   ];
 

@@ -355,7 +355,7 @@ const HeroScrollySection: React.FC<LandingHeroProps> = ({ onStartScan, currentRe
   const act2Opacity = useTransform(smoothProgress, [0.42, 0.50, 0.62, 0.70], [0, 1, 1, 0]);
   const act2X = useTransform(smoothProgress, [0.42, 0.50, 0.62, 0.70], [-350, 0, 0, -350]);
 
-  // Act 3: Right-side Polygon PoS Consensus Callout (Scroll 66% - 88%)
+  // Act 3: Right-side Two-Ledger Sandbox Capsule Callout (Scroll 66% - 88%)
   const act3Opacity = useTransform(smoothProgress, [0.66, 0.74, 0.84, 0.89], [0, 1, 1, 0]);
   const act3X = useTransform(smoothProgress, [0.66, 0.74, 0.84, 0.89], [350, 0, 0, 350]);
 
@@ -542,7 +542,7 @@ const HeroScrollySection: React.FC<LandingHeroProps> = ({ onStartScan, currentRe
           </div>
         </motion.div>
 
-        {/* Act 3: Right-side Polygon Trust Anchor - Real Glassmorphic Bento */}
+        {/* Act 3: Right-side Two-Ledger Sandbox Capsule - Real Glassmorphic Bento */}
         <motion.div
           style={{ x: act3X, opacity: act3Opacity }}
           className="absolute right-6 md:right-16 top-1/2 -translate-y-1/2 z-20 max-w-md w-full pointer-events-none"
@@ -552,24 +552,24 @@ const HeroScrollySection: React.FC<LandingHeroProps> = ({ onStartScan, currentRe
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
 
             <h3 className="font-sans font-bold text-2xl text-white mb-2.5 tracking-tight">
-              Polygon PoS Trust Anchor
+              Two-Ledger Sandbox Capsule
             </h3>
             <p className="text-sm text-stone-300 font-sans leading-relaxed mb-5">
-              Audit results and package state hashes are cryptographically anchored to Polygon mainnet, providing mathematical proof of zero tampering.
+              Empirical double-pass pytest results and AST call-site usage locations are isolated from AI risk claims and sealed into tamper-proof Exit Capsules.
             </p>
 
             <div className="bg-black/30 border border-white/5 rounded-2xl p-4 space-y-2.5 text-xs font-sans">
               <div className="flex justify-between text-stone-400">
-                <span>Mainnet Anchor Block:</span>
-                <span className="text-stone-100 font-bold font-mono">#5,928,174</span>
+                <span>Sandbox Environment:</span>
+                <span className="text-stone-100 font-bold font-mono">Python 3.12 / 3.13</span>
               </div>
               <div className="flex justify-between text-stone-400">
-                <span>Ledger Integrity:</span>
-                <span className="text-emerald-400 font-bold">Verified</span>
+                <span>The Fact Ledger:</span>
+                <span className="text-emerald-400 font-bold">AST Verified</span>
               </div>
               <div className="flex justify-between text-stone-400">
-                <span>Merkle Roots Anchored:</span>
-                <span className="text-stone-100 font-bold font-sans">2,847 Anchors</span>
+                <span>Pytest Regression:</span>
+                <span className="text-stone-100 font-bold font-sans">100% Passed</span>
               </div>
             </div>
           </div>
@@ -661,10 +661,10 @@ const HeroScrollySection: React.FC<LandingHeroProps> = ({ onStartScan, currentRe
             <div className="glassmorphic-card rounded-2xl p-4 sm:p-5 text-left transition-all duration-300 hover:border-white/35 group">
               <div className="flex items-center space-x-1.5 text-stone-400 text-xs font-sans mb-1.5">
                 <Lock className="w-3.5 h-3.5 text-stone-300" />
-                <span className="tracking-wider">POLYGON ANCHOR</span>
+                <span className="tracking-wider">EXIT CAPSULES</span>
               </div>
               <div className="text-2xl sm:text-3xl font-sans font-bold text-white tracking-tight">100% PROVEN</div>
-              <div className="text-[11px] font-sans text-emerald-400 mt-1 font-medium">Block #5.9M</div>
+              <div className="text-[11px] font-sans text-emerald-400 mt-1 font-medium">Python 3.12 Sealed</div>
             </div>
 
             <div className="glassmorphic-card rounded-2xl p-4 sm:p-5 text-left transition-all duration-300 hover:border-white/35 group">

@@ -4,23 +4,26 @@ import { DependencyNode, DependencyEdge } from '../types';
 // BACKEND RESPONSE TYPES (matching your exact JSON schema)
 // ============================================================================
 
-export interface BackendNpmMaintainer {
+export interface BackendMaintainer {
   name: string;
   email?: string;
   github?: string;
   username?: string;
 }
+export type BackendNpmMaintainer = BackendMaintainer;
 
-export interface BackendNpmTimes {
+export interface BackendReleaseTimes {
   created: string;
   modified: string;
   [version: string]: string; // version -> publish timestamp
 }
+export type BackendNpmTimes = BackendReleaseTimes;
 
-export interface BackendNpmMetadata {
-  maintainers: BackendNpmMaintainer[];
-  times: BackendNpmTimes;
+export interface BackendPyPiMetadata {
+  maintainers: BackendMaintainer[];
+  times: BackendReleaseTimes;
 }
+export type BackendNpmMetadata = BackendPyPiMetadata;
 
 export interface BackendVulnerability {
   id: string;                    // CVE-ID or GHSA-ID
@@ -207,7 +210,7 @@ export function transformBackendResponse(backendData: BackendScanResponse): {
       version: dep.version,
       riskScore: dep.final_risk_score,
       category: dep.parent === 'root' ? 'direct' : 'transitive',
-      license: 'UNKNOWN', // Backend doesn't provide; could fetch from npm registry
+      license: 'UNKNOWN', // Backend doesn't provide; could fetch from PyPI index
       downloads: 'UNKNOWN',
       maintainer: maintainers[0]?.name || 'unknown',
       maintainerRisk: deriveMaintainerRisk(maintainers),
@@ -295,7 +298,7 @@ export function getGithubAvatarUrl(username: string, size: number = 40): string 
   return `https://github.com/${username}.png?size=${size}`;
 }
 
-export function getNpmAvatarUrl(username: string): string {
-  // npm doesn't have a direct avatar API; use Gravatar fallback or GitHub
+export function getPyPiAvatarUrl(username: string): string {
   return `https://www.gravatar.com/avatar/${username}?d=identicon&s=40`;
 }
+export const getNpmAvatarUrl = getPyPiAvatarUrl;
