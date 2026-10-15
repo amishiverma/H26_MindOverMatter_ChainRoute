@@ -82,7 +82,7 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onExploreFeatu
               {/* Node connection mock */}
               <div className="py-6 flex items-center justify-around relative">
                 <div className="px-3.5 py-2.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-sans text-emerald-300 text-center">
-                  @traceroot/core
+                  @chainroute/core
                   <div className="text-[10px] text-stone-400 font-sans mt-0.5">Risk: 12 (Safe)</div>
                 </div>
 
@@ -259,7 +259,7 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onExploreFeatu
                 <span className="text-stone-500">Exit Code: 1</span>
               </div>
               <div className="mt-2.5 text-stone-300 space-y-1">
-                <p className="text-stone-500">&gt; trace-root-bot [action] evaluate-dependencies --strict</p>
+                <p className="text-stone-500">&gt; chainroute-bot [action] evaluate-dependencies --strict</p>
                 <p className="text-rose-400 font-semibold">&gt; CRITICAL: High-risk package event-stream-patch blocked from production bundle.</p>
                 <p className="text-stone-400">&gt; Cryptographic proof recorded. PR author notified with remediation diff.</p>
               </div>

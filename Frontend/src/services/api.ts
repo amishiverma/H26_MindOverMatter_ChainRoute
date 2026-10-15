@@ -89,7 +89,7 @@ export interface ScanHistoryEntry {
 // Vite exposes env vars prefixed with VITE_ via import.meta.env
 const getApiBase = (): string => {
   // In production, VITE_API_BASE_URL should be set to the full backend URL
-  // e.g., https://api.trace-root.com/api
+  // e.g., https://api.chainroute.io/api
   // In development, it defaults to /api which works with Vite proxy
   const base = import.meta.env.VITE_API_BASE_URL;
   if (base) {
@@ -260,7 +260,7 @@ export function transformBackendResponse(backendData: BackendScanResponse): {
 // LOCAL STORAGE HISTORY (Client-side fallback)
 // ============================================================================
 
-const HISTORY_KEY = 'traceroot_scan_history';
+const HISTORY_KEY = 'chainroute_scan_history';
 const MAX_HISTORY = 50;
 
 export function saveScanToHistory(entry: Omit<ScanHistoryEntry, 'id'>): ScanHistoryEntry {

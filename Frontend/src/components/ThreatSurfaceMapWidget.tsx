@@ -27,7 +27,7 @@ export const ThreatSurfaceMapWidget: React.FC<ThreatSurfaceMapWidgetProps> = ({
   const nodes: PreviewNode[] = [
     {
       id: 'core',
-      name: '@traceroot/core',
+      name: '@chainroute/core',
       x: 170,
       y: 95,
       r: 10,

@@ -207,10 +207,10 @@ export const App: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs font-sans text-stone-400">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 rounded-xl bg-[#121412] border border-stone-800 flex items-center justify-center">
-                  <img src={logoImg} alt="TraceRoot Logo" className="w-5 h-5 object-contain" />
+                  <img src={logoImg} alt="ChainRoute Logo" className="w-5 h-5 object-contain" />
                 </div>
                 <div>
-                  <span className="font-bold text-white tracking-wider">TraceRoot</span>
+                  <span className="font-bold text-white tracking-wider">ChainRoute</span>
                   <span className="text-stone-500 block text-[10px]">
                     Autonomous DevSecOps & Blockchain Trust Layer
                   </span>

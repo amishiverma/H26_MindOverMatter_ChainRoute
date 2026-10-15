@@ -118,7 +118,7 @@ export const InfoModals: React.FC<InfoModalProps> = ({ type, onClose }) => {
                 INTEROPERABILITY &amp; INTEGRATIONS
               </span>
               <h2 className="text-3xl font-sans font-bold text-stone-100 mt-1">
-                The TraceRoot Ecosystem
+                The ChainRoute Ecosystem
               </h2>
               <p className="text-sm text-stone-400 mt-2">
                 Plugs into your existing software repositories, CI/CD pipelines, package registries, and trust verifiers.
@@ -154,7 +154,7 @@ export const InfoModals: React.FC<InfoModalProps> = ({ type, onClose }) => {
                 DEVELOPER DOCUMENTATION
               </span>
               <h2 className="text-3xl font-sans font-bold text-stone-100 mt-1">
-                Getting Started with TraceRoot
+                Getting Started with ChainRoute
               </h2>
               <p className="text-sm text-stone-400 mt-1">
                 Integrate our CLI and GitHub Action bot into your repositories in under 60 seconds.
@@ -163,32 +163,32 @@ export const InfoModals: React.FC<InfoModalProps> = ({ type, onClose }) => {
 
             <div className="space-y-4">
               <div>
-                <div className="text-stone-300 font-bold mb-1.5 font-sans">1. Install TraceRoot CLI</div>
+                <div className="text-stone-300 font-bold mb-1.5 font-sans">1. Install ChainRoute CLI</div>
                 <div className="p-3.5 rounded-xl bg-[#0b100d] border border-white/10 text-emerald-300 font-mono flex items-center justify-between">
-                  <code>npm install -g @traceroot/cli</code>
+                  <code>npm install -g @chainroute/cli</code>
                 </div>
               </div>
 
               <div>
                 <div className="text-stone-300 font-bold mb-1.5 font-sans">2. Run Local Repository Scan</div>
                 <div className="p-3.5 rounded-xl bg-[#0b100d] border border-white/10 text-stone-200 font-mono">
-                  <code>traceroot scan --repo . --strict --blockchain polygon</code>
+                  <code>chainroute scan --repo . --strict --blockchain polygon</code>
                 </div>
               </div>
 
               <div>
-                <div className="text-stone-300 font-bold mb-1.5 font-sans">3. Add GitHub Actions Workflow (.github/workflows/traceroot.yml)</div>
+                <div className="text-stone-300 font-bold mb-1.5 font-sans">3. Add GitHub Actions Workflow (.github/workflows/chainroute.yml)</div>
                 <pre className="p-3.5 rounded-xl bg-[#0b100d] border border-white/10 text-stone-300 font-mono overflow-x-auto text-[11px]">
-{`name: TraceRoot Security Gate
+{`name: ChainRoute Security Gate
 on: [pull_request]
 jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: traceroot/audit-action@v3
+      - uses: chainroute/audit-action@v3
         with:
-          polygon_api_key: \${{ secrets.TRACEROOT_POLYGON_KEY }}
+          polygon_api_key: \${{ secrets.CHAINROUTE_POLYGON_KEY }}
           fail_on_zero_day: true`}
                 </pre>
               </div>

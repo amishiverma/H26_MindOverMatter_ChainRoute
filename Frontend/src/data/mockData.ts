@@ -3,13 +3,13 @@ import { DependencyNode, DependencyEdge, ActivityLog, BlockchainProof, Notificat
 export const initialNodes: DependencyNode[] = [
   {
     id: 'root-pkg',
-    name: '@traceroot/core-runtime',
+    name: '@chainroute/core-runtime',
     version: '3.4.1',
     riskScore: 12,
     category: 'direct',
     license: 'Apache-2.0',
     downloads: '2.4M/wk',
-    maintainer: 'core-team@traceroot.io',
+    maintainer: 'core-team@chainroute.io',
     maintainerRisk: 'low',
     cves: [],
     status: 'safe',

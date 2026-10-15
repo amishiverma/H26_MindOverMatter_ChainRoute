@@ -4,7 +4,7 @@ import { Settings, Save, Key, Globe, Shield, Check, Cpu, Terminal } from 'lucide
 export const SettingsModal: React.FC = () => {
   const [ghToken, setGhToken] = useState('ghp_************************************');
   const [sensitivity, setSensitivity] = useState<'permissive' | 'balanced' | 'strict'>('strict');
-  const [rpcUrl, setRpcUrl] = useState('https://polygon-mainnet.g.alchemy.com/v2/demo-traceroot-key');
+  const [rpcUrl, setRpcUrl] = useState('https://polygon-mainnet.g.alchemy.com/v2/demo-chainroute-key');
   const [network, setNetwork] = useState<'polygon' | 'sepolia'>('polygon');
   const [autoQuarantine, setAutoQuarantine] = useState(true);
   const [saved, setSaved] = useState(false);
@@ -23,7 +23,7 @@ export const SettingsModal: React.FC = () => {
           <span>Configuration &amp; Credentials</span>
         </div>
         <h2 className="text-2xl font-display font-bold text-stone-100">
-          TraceRoot System Settings
+          ChainRoute System Settings
         </h2>
         <p className="text-sm text-stone-400 mt-1">
           Manage GitHub authentication tokens, heuristic sensitivity gates, and blockchain RPC endpoints.

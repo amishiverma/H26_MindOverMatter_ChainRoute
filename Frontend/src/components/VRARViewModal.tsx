@@ -50,7 +50,7 @@ export const AttackSurfaceModal: React.FC<AttackSurfaceModalProps> = ({ onClose,
 
   const vectorNodes: AttackSurfaceNode[] = [
     {
-      name: '@traceroot/core',
+      name: '@chainroute/core',
       version: 'v2.4.0',
       risk: 12,
       riskLevel: 'safe',
@@ -140,7 +140,7 @@ export const AttackSurfaceModal: React.FC<AttackSurfaceModalProps> = ({ onClose,
     ? (vectorNodes.find((n) => n.name === activeVectorNode) ?? null)
     : null;
 
-  // Orbiting nodes = all except root anchor (index 0, @traceroot/core)
+  // Orbiting nodes = all except root anchor (index 0, @chainroute/core)
   const orbitingNodes = vectorNodes.slice(1);
 
   const handleNodeClick = (name: string) => {
