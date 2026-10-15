@@ -154,15 +154,15 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
               key={item.step}
               className={`p-3 rounded-2xl border transition-all ${
                 simStep >= item.step
-                  ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-300'
-                  : 'bg-[#0b0d0c]/60 border-stone-800/60 text-stone-500'
+                  ? 'bg-emerald-950/20 backdrop-blur-xl border-emerald-500/30 text-emerald-300 shadow-[0_4px_16px_rgba(16,185,129,0.1)]'
+                  : 'bg-white/[0.04] backdrop-blur-xl border-white/10 text-stone-400'
               }`}
             >
               <div className="flex items-center gap-2">
                 {simStep >= item.step ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 ) : (
-                  <div className="w-3.5 h-3.5 rounded-full border border-stone-700 flex items-center justify-center text-[9px]">
+                  <div className="w-3.5 h-3.5 rounded-full border border-stone-600 flex items-center justify-center text-[9px] text-stone-400">
                     {item.step}
                   </div>
                 )}
@@ -179,7 +179,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
       {/* ─────────────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* FACT LEDGER LEGEND */}
-        <div className="rounded-2xl p-4 bg-[#0a120e] border border-emerald-500/60 shadow-lg shadow-emerald-950/20 flex items-start gap-3.5">
+        <div className="rounded-2xl p-4 bg-emerald-950/20 backdrop-blur-xl border border-emerald-500/30 text-emerald-400 shadow-[0_8px_32px_rgba(16,185,129,0.1)] flex items-start gap-3.5">
           <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 mt-0.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           </div>
@@ -190,26 +190,38 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
               </span>
               <span className="text-xs font-bold text-stone-200">Verified Ground Truth</span>
             </div>
-            <p className="text-[11px] text-stone-400 mt-1 leading-snug">
+            <p className="text-[11px] text-stone-300/80 mt-1 leading-snug">
               Solid emerald borders denote <strong className="text-emerald-400">immutable, deterministic facts</strong> extracted from the target repository: exact AST line numbers, resolved versions, and double-baseline sandbox test runner exit codes.
             </p>
           </div>
         </div>
 
         {/* CLAIM LEDGER LEGEND */}
-        <div className="rounded-2xl p-4 bg-[#141009] border-2 border-dashed border-amber-400/60 shadow-lg shadow-amber-950/20 flex items-start gap-3.5">
-          <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 mt-0.5">
-            <Sparkles className="w-4 h-4 text-amber-400" />
+        <div className={`rounded-2xl p-4 backdrop-blur-xl border-2 border-dashed flex items-start gap-3.5 shadow-lg ${
+          isRejected || capsule.overall_risk === 'CRITICAL'
+            ? 'bg-rose-950/20 border-rose-500/50 text-rose-300 shadow-[0_8px_32px_rgba(244,63,94,0.1)]'
+            : 'bg-[#141009]/80 border-amber-400/60 text-amber-300 shadow-amber-950/20'
+        }`}>
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border ${
+            isRejected || capsule.overall_risk === 'CRITICAL'
+              ? 'bg-rose-500/20 border-rose-500/40 text-rose-400'
+              : 'bg-amber-500/20 border-amber-500/40 text-amber-400'
+          }`}>
+            <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold">
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                isRejected || capsule.overall_risk === 'CRITICAL'
+                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                  : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+              }`}>
                 CLAIM LEDGER
               </span>
               <span className="text-xs font-bold text-stone-200">Unverified Model Output — Gemma 4</span>
             </div>
-            <p className="text-[11px] text-stone-400 mt-1 leading-snug">
-              Dashed amber borders denote <strong className="text-amber-400">AI-generated hypotheses</strong>: risk narratives, proposed replacements, migration steps, and compatibility evaluations. Must be human-reviewed.
+            <p className="text-[11px] text-stone-300/80 mt-1 leading-snug">
+              Dashed borders denote <strong className={isRejected || capsule.overall_risk === 'CRITICAL' ? 'text-rose-400' : 'text-amber-400'}>AI-generated hypotheses</strong>: risk narratives, proposed replacements, migration steps, and compatibility evaluations. Must be human-reviewed.
             </p>
           </div>
         </div>
@@ -218,19 +230,25 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
       {/* ─────────────────────────────────────────────────────────────────── */}
       {/* 3. CAPSULE TOP METADATA & MERGE VERDICT                             */}
       {/* ─────────────────────────────────────────────────────────────────── */}
-      <div className="rounded-3xl p-6 bg-[#0e100f] border border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className={`rounded-3xl p-6 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl border ${
+        isRejected
+          ? 'bg-rose-950/25 border-rose-500/40 text-rose-300 shadow-[0_8px_32px_rgba(244,63,94,0.15)]'
+          : isApproved
+          ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400 shadow-[0_8px_32px_rgba(16,185,129,0.1)]'
+          : 'bg-white/[0.06] border-white/10 text-stone-100 shadow-xl'
+      }`}>
         <div className="flex items-center gap-4 flex-wrap">
           <div>
             <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider block">
               Capsule Identifier
             </span>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="font-mono text-stone-200 font-bold text-sm">
+              <span className="font-mono text-stone-100 font-bold text-sm">
                 {capsule.capsule_id}
               </span>
               <button
                 onClick={handleCopyCapsuleId}
-                className="p-1 rounded-md bg-stone-800 hover:bg-stone-700 text-stone-300 transition-colors"
+                className="p-1 rounded-md bg-white/[0.08] hover:bg-white/[0.15] text-stone-300 transition-colors border border-white/10"
                 title="Copy Capsule ID"
               >
                 {copiedCapsule ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -238,7 +256,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
             </div>
           </div>
 
-          <div className="h-8 w-px bg-stone-800 hidden sm:block" />
+          <div className="h-8 w-px bg-white/10 hidden sm:block" />
 
           <div>
             <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider block">
@@ -249,7 +267,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
             </span>
           </div>
 
-          <div className="h-8 w-px bg-stone-800 hidden sm:block" />
+          <div className="h-8 w-px bg-white/10 hidden sm:block" />
 
           <div>
             <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider block">
@@ -276,7 +294,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={handleExportJSON}
-            className="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-800 text-xs font-semibold flex items-center gap-2 transition-all hover:border-stone-700"
+            className="px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-stone-100 border border-white/15 text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
           >
             <Download className="w-3.5 h-3.5 text-emerald-400" />
             <span>Export Capsule JSON</span>
@@ -301,35 +319,49 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
         </div>
 
         {/* ── HEADER 1: DEPENDENCY DETAILS (FACT LEDGER) ───────────────────── */}
-        <div className="rounded-2xl p-6 bg-[#0a120e] border border-emerald-500/60 shadow-lg">
-          <div className="flex items-center justify-between pb-3 border-b border-emerald-900/40 mb-4">
+        <div className={`rounded-2xl p-6 backdrop-blur-xl shadow-lg border ${
+          capsule.fact.snapshot.vulnerabilities.length > 0 || isRejected
+            ? 'bg-rose-950/20 border-rose-500/40 text-rose-300 shadow-[0_8px_32px_rgba(244,63,94,0.12)]'
+            : 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400 shadow-[0_8px_32px_rgba(16,185,129,0.1)]'
+        }`}>
+          <div className={`flex items-center justify-between pb-3 border-b mb-4 ${
+            capsule.fact.snapshot.vulnerabilities.length > 0 || isRejected ? 'border-rose-900/40' : 'border-emerald-900/40'
+          }`}>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
+              <span className={`text-xs font-mono font-bold uppercase tracking-wider ${
+                capsule.fact.snapshot.vulnerabilities.length > 0 || isRejected ? 'text-rose-400' : 'text-emerald-400'
+              }`}>
                 Header 1
               </span>
               <span className="text-stone-500">•</span>
               <span className="text-sm font-bold text-white">Dependency Details</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-              <span>Verified Fact</span>
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1 border ${
+              capsule.fact.snapshot.vulnerabilities.length > 0 || isRejected
+                ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+            }`}>
+              <CheckCircle2 className="w-3 h-3" />
+              <span>{capsule.fact.snapshot.vulnerabilities.length > 0 ? 'Verified Incursions' : 'Verified Fact'}</span>
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-sans">
-            <div className="p-3.5 rounded-xl bg-[#0e1612] border border-emerald-900/30">
+            <div className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
               <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Package Name</span>
-              <span className="font-mono text-emerald-300 font-bold text-sm block mt-0.5">{capsule.fact.snapshot.package}</span>
+              <span className={`font-mono font-bold text-sm block mt-0.5 ${
+                capsule.fact.snapshot.vulnerabilities.length > 0 ? 'text-rose-300' : 'text-emerald-300'
+              }`}>{capsule.fact.snapshot.package}</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-[#0e1612] border border-emerald-900/30">
+            <div className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
               <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Resolved Version</span>
               <span className="font-mono text-stone-200 font-bold text-sm block mt-0.5">{capsule.fact.snapshot.resolved_version || capsule.fact.snapshot.requested_version}</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-[#0e1612] border border-emerald-900/30">
+            <div className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
               <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Ecosystem &amp; Scope</span>
               <span className="text-stone-200 font-medium block mt-0.5 capitalize">{capsule.fact.snapshot.ecosystem} • {capsule.fact.snapshot.is_direct ? 'Direct' : 'Transitive'}</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-[#0e1612] border border-emerald-900/30">
+            <div className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
               <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Runtime Sandbox</span>
               <span className="font-mono text-emerald-300 font-medium block mt-0.5">Python {capsule.fact.python_version}</span>
             </div>
@@ -337,13 +369,13 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
 
           {/* Fact CVEs */}
           {capsule.fact.snapshot.vulnerabilities.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-emerald-900/30">
+            <div className="mt-4 pt-3 border-t border-rose-900/30">
               <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block mb-2">
                 Authoritative OSV &amp; CVE Records ({capsule.fact.snapshot.vulnerabilities.length})
               </span>
               <div className="space-y-2">
                 {capsule.fact.snapshot.vulnerabilities.map((vuln) => (
-                  <div key={vuln.id} className="p-3 rounded-xl bg-[#0e1612] border border-rose-500/30 flex items-center justify-between text-xs font-sans">
+                  <div key={vuln.id} className="p-3 rounded-xl bg-rose-950/20 backdrop-blur-xl border border-rose-500/30 flex items-center justify-between text-xs font-sans shadow-sm">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-mono font-bold text-rose-400">{vuln.id}</span>
@@ -367,52 +399,70 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
         </div>
 
         {/* ── HEADER 2: RISK INDICATORS (CLAIM LEDGER) ──────────────────────── */}
-        <div className="rounded-2xl p-6 bg-[#141009] border-2 border-dashed border-amber-400/60 shadow-lg">
-          <div className="flex items-center justify-between pb-3 border-b border-amber-900/40 mb-4">
+        <div className={`rounded-2xl p-6 backdrop-blur-xl border-2 border-dashed shadow-lg ${
+          capsule.overall_risk === 'CRITICAL' || isRejected
+            ? 'bg-rose-950/20 border-rose-500/50 shadow-[0_8px_32px_rgba(244,63,94,0.12)]'
+            : 'bg-[#141009]/80 border-amber-400/60 shadow-amber-950/20'
+        }`}>
+          <div className={`flex items-center justify-between pb-3 border-b mb-4 ${
+            capsule.overall_risk === 'CRITICAL' || isRejected ? 'border-rose-900/40' : 'border-amber-900/40'
+          }`}>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
+              <span className={`text-xs font-mono font-bold uppercase tracking-wider ${
+                capsule.overall_risk === 'CRITICAL' || isRejected ? 'text-rose-400' : 'text-amber-400'
+              }`}>
                 Header 2
               </span>
               <span className="text-stone-500">•</span>
               <span className="text-sm font-bold text-white">Risk Indicators</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1 border ${
+              capsule.overall_risk === 'CRITICAL' || isRejected
+                ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+            }`}>
+              <Sparkles className="w-3 h-3" />
               <span>Unverified Model Output — Gemma 4</span>
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
-            <div className="p-3.5 rounded-xl bg-[#1a140a] border border-amber-900/30">
+            <div className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
               <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Gemma Risk Score</span>
-              <span className="text-2xl font-mono font-extrabold text-amber-400 block mt-0.5">
+              <span className={`text-2xl font-mono font-extrabold block mt-0.5 ${
+                capsule.overall_risk === 'CRITICAL' ? 'text-rose-400' : 'text-amber-400'
+              }`}>
                 {capsule.claim.risk_reasoning.risk_score} <span className="text-xs font-normal text-stone-500">/ 10</span>
               </span>
             </div>
-            <div className="p-3.5 rounded-xl bg-[#1a140a] border border-amber-900/30">
+            <div className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
               <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Abandonment Risk</span>
               <span className="text-sm font-bold text-stone-200 block mt-1">{capsule.claim.risk_reasoning.abandonment_risk}</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-[#1a140a] border border-amber-900/30">
+            <div className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
               <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Supply Chain Risk</span>
               <span className="text-sm font-bold text-rose-400 block mt-1">{capsule.claim.risk_reasoning.supply_chain_risk}</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-[#1a140a] border border-amber-900/30">
+            <div className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
               <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Vulnerability Risk</span>
               <span className="text-sm font-bold text-orange-400 block mt-1">{capsule.claim.risk_reasoning.vulnerability_risk}</span>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#1a140a] border border-amber-900/30 text-xs">
-            <span className="text-amber-400 font-semibold block mb-1">Gemma 4 Risk Synthesis Narrative:</span>
+          <div className="p-4 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 text-xs shadow-sm">
+            <span className={`font-semibold block mb-1 ${
+              capsule.overall_risk === 'CRITICAL' ? 'text-rose-300' : 'text-amber-400'
+            }`}>
+              Gemma 4 Risk Synthesis Narrative:
+            </span>
             <p className="text-stone-300 leading-relaxed font-sans">
               {capsule.claim.risk_reasoning.reasoning_summary}
             </p>
             {capsule.claim.risk_reasoning.evidence_cited.length > 0 && (
-              <div className="mt-3 pt-2.5 border-t border-amber-900/30 flex items-center gap-2 flex-wrap">
+              <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] text-stone-400 uppercase tracking-wider font-semibold">Evidence Cited:</span>
                 {capsule.claim.risk_reasoning.evidence_cited.map((ev, i) => (
-                  <span key={i} className="px-2 py-0.5 rounded-md bg-stone-900 text-stone-300 font-mono text-[10px] border border-stone-800">
+                  <span key={i} className="px-2 py-0.5 rounded-md bg-white/[0.08] text-stone-200 font-mono text-[10px] border border-white/15">
                     {ev}
                   </span>
                 ))}
@@ -422,7 +472,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
         </div>
 
         {/* ── HEADER 3: USAGE LOCATIONS (FACT LEDGER) ───────────────────────── */}
-        <div className="rounded-2xl p-6 bg-[#0a120e] border border-emerald-500/60 shadow-lg">
+        <div className="rounded-2xl p-6 bg-emerald-950/20 backdrop-blur-xl border border-emerald-500/30 text-emerald-400 shadow-[0_8px_32px_rgba(16,185,129,0.1)]">
           <div className="flex items-center justify-between pb-3 border-b border-emerald-900/40 mb-4">
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
@@ -441,23 +491,23 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
             {capsule.fact.usage_locations.map((loc, idx) => (
               <div
                 key={idx}
-                className="p-3.5 rounded-xl bg-[#0e1612] border border-emerald-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                className="p-3.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-sm"
               >
                 <div className="flex items-start sm:items-center gap-2.5">
                   <FileCode2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-emerald-300 font-bold">{loc.file_path}</span>
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 font-mono text-[10px] border border-emerald-800">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-mono text-[10px] border border-emerald-800/60">
                         Line {loc.line_number}
                       </span>
                     </div>
-                    <code className="text-[11px] text-stone-300 font-mono block mt-1 bg-black/40 px-2 py-1 rounded-md border border-white/5">
+                    <code className="text-[11px] text-stone-200 font-mono block mt-1 bg-black/40 px-2.5 py-1 rounded-md border border-white/5">
                       {loc.statement}
                     </code>
                   </div>
                 </div>
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-stone-900 text-stone-400 border border-stone-800 shrink-0">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-white/[0.08] text-stone-300 border border-white/10 shrink-0">
                   {loc.kind}
                 </span>
               </div>
@@ -466,17 +516,29 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
         </div>
 
         {/* ── HEADER 4: PROPOSED REPLACEMENT (CLAIM LEDGER) ─────────────────── */}
-        <div className="rounded-2xl p-6 bg-[#141009] border-2 border-dashed border-amber-400/60 shadow-lg">
-          <div className="flex items-center justify-between pb-3 border-b border-amber-900/40 mb-4">
+        <div className={`rounded-2xl p-6 backdrop-blur-xl border-2 border-dashed shadow-lg ${
+          isRejected || capsule.overall_risk === 'CRITICAL'
+            ? 'bg-rose-950/20 border-rose-500/50 shadow-[0_8px_32px_rgba(244,63,94,0.1)]'
+            : 'bg-[#141009]/80 border-amber-400/60 shadow-amber-950/20'
+        }`}>
+          <div className={`flex items-center justify-between pb-3 border-b mb-4 ${
+            isRejected || capsule.overall_risk === 'CRITICAL' ? 'border-rose-900/40' : 'border-amber-900/40'
+          }`}>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
+              <span className={`text-xs font-mono font-bold uppercase tracking-wider ${
+                isRejected || capsule.overall_risk === 'CRITICAL' ? 'text-rose-400' : 'text-amber-400'
+              }`}>
                 Header 4
               </span>
               <span className="text-stone-500">•</span>
               <span className="text-sm font-bold text-white">Proposed Replacement</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1 border ${
+              isRejected || capsule.overall_risk === 'CRITICAL'
+                ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+            }`}>
+              <Sparkles className="w-3 h-3" />
               <span>Unverified Model Output — Gemma 4</span>
             </span>
           </div>
@@ -485,7 +547,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
             {capsule.claim.proposed_replacements.map((rep, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-xl bg-[#1a140a] border border-amber-900/30 flex flex-col justify-between text-xs"
+                className="p-4 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 flex flex-col justify-between text-xs shadow-sm"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -494,19 +556,19 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
                       {Math.round(rep.confidence * 100)}% Confidence
                     </span>
                   </div>
-                  <span className="text-[11px] text-stone-400 block mb-2 font-mono">
+                  <span className="text-[11px] text-stone-300 block mb-2 font-mono">
                     Target: v{rep.suggested_version} • {rep.breaking_changes_expected ? '⚠️ Breaking Changes' : '✓ Drop-in Compatible'}
                   </span>
                   <p className="text-stone-300 text-xs leading-relaxed mb-3">
                     {rep.rationale}
                   </p>
                   {rep.diff_preview && (
-                    <pre className="p-2.5 rounded-lg bg-black/50 text-[10px] font-mono text-stone-300 border border-white/5 overflow-x-auto mb-2">
+                    <pre className="p-2.5 rounded-lg bg-black/50 text-[10px] font-mono text-stone-200 border border-white/5 overflow-x-auto mb-2">
                       {rep.diff_preview}
                     </pre>
                   )}
                 </div>
-                <div className="text-[10px] text-stone-400 pt-2 border-t border-amber-900/20">
+                <div className="text-[10px] text-stone-400 pt-2 border-t border-white/10">
                   <strong className="text-stone-300">Notes:</strong> {rep.migration_notes || 'Standard import refactoring.'}
                 </div>
               </div>
@@ -515,18 +577,30 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
         </div>
 
         {/* ── HEADER 5: EXECUTED TEST RESULTS (FACT LEDGER) ─────────────────── */}
-        <div className="rounded-2xl p-6 bg-[#0a120e] border border-emerald-500/60 shadow-lg">
-          <div className="flex items-center justify-between pb-3 border-b border-emerald-900/40 mb-4">
+        <div className={`rounded-2xl p-6 backdrop-blur-xl border shadow-lg ${
+          capsule.fact.tests_failed > 0
+            ? 'bg-rose-950/25 border-rose-500/40 text-rose-300 shadow-[0_8px_32px_rgba(244,63,94,0.15)]'
+            : 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400 shadow-[0_8px_32px_rgba(16,185,129,0.1)]'
+        }`}>
+          <div className={`flex items-center justify-between pb-3 border-b mb-4 ${
+            capsule.fact.tests_failed > 0 ? 'border-rose-900/40' : 'border-emerald-900/40'
+          }`}>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
+              <span className={`text-xs font-mono font-bold uppercase tracking-wider ${
+                capsule.fact.tests_failed > 0 ? 'text-rose-400' : 'text-emerald-400'
+              }`}>
                 Header 5
               </span>
               <span className="text-stone-500">•</span>
               <span className="text-sm font-bold text-white">Executed Test Results (Sandbox Double-Baseline)</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-              <span>Verified Fact</span>
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1 border ${
+              capsule.fact.tests_failed > 0
+                ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+            }`}>
+              {capsule.fact.tests_failed > 0 ? <AlertTriangle className="w-3 h-3 text-rose-400" /> : <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+              <span>{capsule.fact.tests_failed > 0 ? 'Regression Detected' : 'Verified Fact'}</span>
             </span>
           </div>
 
@@ -537,7 +611,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
             <span className="text-emerald-400">
               Passed: <strong>{capsule.fact.tests_passed}</strong>
             </span>
-            <span className="text-rose-400">
+            <span className={capsule.fact.tests_failed > 0 ? 'text-rose-400 font-bold' : 'text-stone-400'}>
               Failed: <strong>{capsule.fact.tests_failed}</strong>
             </span>
           </div>
@@ -546,10 +620,10 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
             {capsule.fact.test_results.map((tr, idx) => (
               <div
                 key={idx}
-                className={`p-3.5 rounded-xl border text-xs font-mono ${
+                className={`p-3.5 rounded-xl border text-xs font-mono backdrop-blur-xl shadow-sm ${
                   tr.status === 'PASS'
-                    ? 'bg-[#0e1612] border-emerald-900/40 text-stone-200'
-                    : 'bg-rose-950/20 border-rose-500/40 text-rose-300'
+                    ? 'bg-white/[0.06] border-white/10 text-stone-200'
+                    : 'bg-rose-950/30 border-rose-500/50 text-rose-300'
                 }`}
               >
                 <div className="flex items-center justify-between flex-wrap gap-2">
@@ -564,10 +638,10 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
                   <div className="flex items-center gap-2 text-[10px]">
                     {tr.duration_ms && <span className="text-stone-400">{tr.duration_ms}ms</span>}
                     <span
-                      className={`px-2 py-0.5 rounded font-bold uppercase ${
+                      className={`px-2 py-0.5 rounded font-bold uppercase border ${
                         tr.status === 'PASS'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
                       }`}
                     >
                       {tr.status}
@@ -581,7 +655,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
                   </div>
                 )}
                 {tr.traceback && (
-                  <pre className="mt-2 p-2 rounded bg-black/60 text-[10px] text-rose-400 overflow-x-auto">
+                  <pre className="mt-2 p-2 rounded bg-black/60 text-[10px] text-rose-400 overflow-x-auto border border-rose-500/20">
                     {tr.traceback}
                   </pre>
                 )}
@@ -591,22 +665,34 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
         </div>
 
         {/* ── HEADER 6: OPEN CONCERNS (CLAIM / MERGER LEDGER) ───────────────── */}
-        <div className="rounded-2xl p-6 bg-[#141009] border-2 border-dashed border-amber-400/60 shadow-lg">
-          <div className="flex items-center justify-between pb-3 border-b border-amber-900/40 mb-4">
+        <div className={`rounded-2xl p-6 backdrop-blur-xl border-2 border-dashed shadow-lg ${
+          isRejected || capsule.overall_risk === 'CRITICAL'
+            ? 'bg-rose-950/20 border-rose-500/50 shadow-[0_8px_32px_rgba(244,63,94,0.1)]'
+            : 'bg-[#141009]/80 border-amber-400/60 shadow-amber-950/20'
+        }`}>
+          <div className={`flex items-center justify-between pb-3 border-b mb-4 ${
+            isRejected || capsule.overall_risk === 'CRITICAL' ? 'border-rose-900/40' : 'border-amber-900/40'
+          }`}>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
+              <span className={`text-xs font-mono font-bold uppercase tracking-wider ${
+                isRejected || capsule.overall_risk === 'CRITICAL' ? 'text-rose-400' : 'text-amber-400'
+              }`}>
                 Header 6
               </span>
               <span className="text-stone-500">•</span>
               <span className="text-sm font-bold text-white">Open Concerns &amp; Merger Verdict</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1 border ${
+              isRejected || capsule.overall_risk === 'CRITICAL'
+                ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+            }`}>
+              <Sparkles className="w-3 h-3" />
               <span>Unverified Model Output — Gemma 4</span>
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#1a140a] border border-amber-900/30 text-xs mb-4">
+          <div className="p-4 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 text-xs mb-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="font-bold text-stone-200">Merger Synthesis &amp; Verdict Rationale:</span>
               <span
@@ -629,14 +715,14 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
           {capsule.claim.open_concerns.length > 0 ? (
             <ul className="space-y-2 text-xs font-sans text-stone-300">
               {capsule.claim.open_concerns.map((concern, i) => (
-                <li key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-[#1a140a] border border-amber-900/30">
+                <li key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
                   <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                   <span>{concern}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <div className="p-3 rounded-xl bg-[#1a140a] border border-emerald-900/30 text-xs text-emerald-400 flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-emerald-500/30 text-xs text-emerald-400 flex items-center gap-2 shadow-sm">
               <CheckCircle2 className="w-4 h-4" />
               <span>No unresolved open concerns recorded by the merger engine.</span>
             </div>
@@ -647,10 +733,10 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
       {/* ─────────────────────────────────────────────────────────────────── */}
       {/* 5. MANDATORY GEMMA MODEL METADATA CARD (Hackathon Rubric Spec)      */}
       {/* ─────────────────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl p-5 bg-[#121412] border border-stone-800 text-xs font-sans">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-800">
+      <div className="rounded-2xl p-5 bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-xl text-xs font-sans">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-lime-400" />
+            <Cpu className="w-4 h-4 text-emerald-400" />
             <span className="font-bold text-stone-200">Gemma Model Provenance &amp; Compliance Metadata</span>
           </div>
           <span className="text-[10px] font-mono text-stone-400">
@@ -659,15 +745,15 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 text-xs">
-          <div className="p-3 rounded-xl bg-[#0b0d0c] border border-stone-800/80">
+          <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 shadow-sm">
             <span className="text-[10px] text-stone-400 uppercase font-semibold block">Model</span>
             <span className="font-mono text-stone-200 font-bold mt-0.5 block">{capsule.model_metadata.model}</span>
           </div>
-          <div className="p-3 rounded-xl bg-[#0b0d0c] border border-stone-800/80">
+          <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 shadow-sm">
             <span className="text-[10px] text-stone-400 uppercase font-semibold block">Access Method</span>
             <span className="font-mono text-stone-300 mt-0.5 block truncate">{capsule.model_metadata.access_method}</span>
           </div>
-          <div className="p-3 rounded-xl bg-[#0b0d0c] border border-stone-800/80">
+          <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 shadow-sm">
             <span className="text-[10px] text-stone-400 uppercase font-semibold block">Terms &amp; Governance</span>
             <a
               href={capsule.model_metadata.terms}
@@ -680,7 +766,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
             </a>
           </div>
         </div>
-        <p className="text-[11px] text-stone-400 mt-3 pt-3 border-t border-stone-800/60 leading-snug">
+        <p className="text-[11px] text-stone-400 mt-3 pt-3 border-t border-white/10 leading-snug">
           Deterministic Fact and AI Claim separation cryptographically enforced under ChainRoute Two-Ledger Governance.
         </p>
       </div>

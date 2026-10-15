@@ -42,11 +42,13 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ history = [] }) 
 
   const hoveredItem = hoveredIndex !== null ? points[hoveredIndex] : points[points.length - 1];
 
+  const hasCriticalAlerts = (hoveredIndex !== null ? hoveredItem.anomalies : (latestScan ? latestScan.criticalCount : 2)) > 0;
+
   return (
-    <div className="rounded-3xl bg-[#161412]/80 backdrop-blur-xl border border-white/5 p-6 sm:p-7 flex flex-col justify-between h-full relative overflow-hidden shadow-2xl">
+    <div className="rounded-3xl bg-white/[0.06] backdrop-blur-xl border border-white/10 p-6 sm:p-7 flex flex-col justify-between h-full relative overflow-hidden shadow-2xl">
       
       {/* Top Header & Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/5 relative z-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10 relative z-10">
         <div>
           <span className="text-xs font-sans text-stone-400 block">Security Analytics</span>
           <h3 className="font-sans font-bold text-lg text-stone-100">
@@ -58,7 +60,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ history = [] }) 
         </div>
 
         {/* Timeframe Filter Buttons */}
-        <div className="flex items-center space-x-1 p-1 rounded-full bg-[#0e100f] border border-stone-800 self-start sm:self-auto">
+        <div className="flex items-center space-x-1 p-1 rounded-full bg-white/[0.04] border border-white/10 self-start sm:self-auto backdrop-blur-md">
           {(['30 Days', '6 Months', '1 Year'] as FilterPeriod[]).map((tab) => (
             <button
               key={tab}
@@ -68,7 +70,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ history = [] }) 
               }}
               className={`px-3 py-1 rounded-full text-xs font-sans transition-all ${
                 period === tab
-                  ? 'bg-gradient-to-r from-lime-600 via-emerald-700 to-stone-800 text-stone-100 font-semibold border border-lime-500/30'
+                  ? 'bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/40 shadow-sm'
                   : 'text-stone-400 hover:text-white'
               }`}
             >
@@ -80,26 +82,32 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ history = [] }) 
 
       {/* Summary Metrics Row */}
       <div className="grid grid-cols-3 gap-3 my-4 relative z-10 font-sans text-xs">
-        <div className="p-3 rounded-2xl bg-[#0e100f] border border-stone-800">
-          <span className="text-stone-400 block text-[10px] font-sans font-medium">CURRENT RISK INDEX</span>
-          <span className="text-lg font-bold text-emerald-400 flex items-center gap-1 font-sans">
+        <div className="p-3.5 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
+          <span className="text-stone-400 block text-[10px] font-sans font-medium uppercase tracking-wider">CURRENT RISK INDEX</span>
+          <span className="text-lg font-bold text-emerald-400 flex items-center gap-1 font-sans mt-0.5">
             {hoveredIndex !== null 
               ? hoveredItem.riskScore 
               : (latestScan ? latestScan.overallRiskScore : 28)}{' '}
             <span className="text-[10px] text-stone-400 font-sans">/ 100</span>
           </span>
         </div>
-        <div className="p-3 rounded-2xl bg-[#0e100f] border border-stone-800">
-          <span className="text-stone-400 block text-[10px] font-sans font-medium">TOTAL SCANNED</span>
-          <span className="text-lg font-bold text-stone-100 font-sans">
+        <div className="p-3.5 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
+          <span className="text-stone-400 block text-[10px] font-sans font-medium uppercase tracking-wider">TOTAL SCANNED</span>
+          <span className="text-lg font-bold text-stone-100 font-sans mt-0.5">
             {hoveredIndex !== null 
               ? hoveredItem.packages.toLocaleString() 
               : (latestScan ? latestScan.totalPackages.toLocaleString() : '2,847')}
           </span>
         </div>
-        <div className="p-3 rounded-2xl bg-[#0e100f] border border-stone-800">
-          <span className="text-stone-400 block text-[10px] font-sans font-medium">CRITICAL ALERTS</span>
-          <span className="text-lg font-bold text-rose-400 flex items-center gap-1 font-sans">
+        <div className={`p-3.5 rounded-2xl backdrop-blur-xl border shadow-sm transition-all ${
+          hasCriticalAlerts
+            ? 'bg-rose-950/25 border-rose-500/40 text-rose-300 shadow-[0_4px_20px_rgba(244,63,94,0.15)]'
+            : 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400'
+        }`}>
+          <span className="text-stone-400 block text-[10px] font-sans font-medium uppercase tracking-wider">CRITICAL ALERTS</span>
+          <span className={`text-lg font-bold flex items-center gap-1 font-sans mt-0.5 ${
+            hasCriticalAlerts ? 'text-rose-400' : 'text-emerald-400'
+          }`}>
             {hoveredIndex !== null 
               ? hoveredItem.anomalies 
               : (latestScan ? latestScan.criticalCount : 2)}

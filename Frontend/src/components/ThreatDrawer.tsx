@@ -99,8 +99,8 @@ const VulnerabilityDetailDrawer: React.FC<VulnDrawerProps> = ({ vuln, onClose })
 
       {/* CVSS */}
       {vuln.cvss_score !== undefined && (
-        <div className="p-4 rounded-2xl bg-[#121412] border border-stone-800 flex items-center justify-between">
-          <span className="text-xs text-stone-400 font-sans">CVSS v3 Score</span>
+        <div className="p-4 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 flex items-center justify-between shadow-sm">
+          <span className="text-xs text-stone-300 font-sans">CVSS v3 Score</span>
           <span className={`text-2xl font-extrabold font-mono ${
             vuln.cvss_score >= 9 ? 'text-rose-400' :
             vuln.cvss_score >= 7 ? 'text-orange-400' :
@@ -115,7 +115,7 @@ const VulnerabilityDetailDrawer: React.FC<VulnDrawerProps> = ({ vuln, onClose })
       {vuln.description && (
         <div>
           <span className="text-[10px] text-stone-400 font-sans uppercase tracking-wider font-semibold block mb-1.5">Description</span>
-          <p className="text-xs font-sans text-stone-300 leading-relaxed bg-[#121412] p-4 rounded-2xl border border-stone-800/80">
+          <p className="text-xs font-sans text-stone-300 leading-relaxed bg-white/[0.06] backdrop-blur-xl p-4 rounded-2xl border border-white/10 shadow-sm">
             {vuln.description}
           </p>
         </div>
@@ -124,13 +124,13 @@ const VulnerabilityDetailDrawer: React.FC<VulnDrawerProps> = ({ vuln, onClose })
       {/* Affected / Fixed versions */}
       <div className="grid grid-cols-2 gap-3">
         {vuln.affected_versions && (
-          <div className="p-3 rounded-2xl bg-[#121412] border border-stone-800 text-xs">
+          <div className="p-3 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 text-xs shadow-sm">
             <span className="text-[10px] text-stone-400 font-sans block mb-0.5">Affected Versions</span>
             <span className="font-mono text-rose-400 font-medium">{vuln.affected_versions}</span>
           </div>
         )}
         {(vuln.fixed_in || vuln.fixed_version) && (
-          <div className="p-3 rounded-2xl bg-[#121412] border border-stone-800 text-xs">
+          <div className="p-3 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 text-xs shadow-sm">
             <span className="text-[10px] text-stone-400 font-sans block mb-0.5">Fixed In</span>
             <span className="font-mono text-emerald-400 font-medium">{vuln.fixed_in || vuln.fixed_version}</span>
           </div>
@@ -269,15 +269,15 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-4 font-sans text-xs">
-                <div className="p-3 rounded-2xl bg-[#0b0d0c] border border-stone-800">
+                <div className="p-3 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
                   <span className="text-stone-400 block text-[10px] font-semibold uppercase tracking-wider">Maintainer</span>
                   <span className="text-stone-200 truncate block font-medium mt-0.5">{node.maintainer}</span>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#0b0d0c] border border-stone-800">
+                <div className="p-3 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
                   <span className="text-stone-400 block text-[10px] font-semibold uppercase tracking-wider">Downloads</span>
                   <span className="text-stone-200 font-medium mt-0.5 block">{node.downloads}</span>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#0b0d0c] border border-stone-800">
+                <div className="p-3 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-sm">
                   <span className="text-stone-400 block text-[10px] font-semibold uppercase tracking-wider">Velocity Risk</span>
                   <span className={`capitalize font-bold mt-0.5 block ${
                     node.maintainerRisk === 'critical' ? 'text-rose-400' :
@@ -295,7 +295,7 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
                   <GitBranch className="w-3.5 h-3.5 text-emerald-500" />
                   <span>Dependency Path</span>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-[#0b0d0c] border border-stone-800 flex flex-wrap items-center gap-1 font-mono text-xs">
+                <div className="p-3.5 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 flex flex-wrap items-center gap-1 font-mono text-xs">
                   {depPath.map((seg, idx) => (
                     <React.Fragment key={idx}>
                       <span className={idx === depPath.length - 1
@@ -327,14 +327,26 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
             {/* ── TWO LEDGERS ARCHITECTURE ─────────────────────────────── */}
 
             {/* 1. THE FACT LEDGER (VERIFIED SANDBOX GROUND TRUTH) */}
-            <div className="my-5 rounded-2xl bg-[#0a120e] border border-emerald-500/60 p-5 shadow-lg">
-              <div className="flex items-center justify-between pb-2.5 border-b border-emerald-900/40 mb-3">
-                <div className="flex items-center space-x-2 text-emerald-400 text-xs font-sans font-bold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <div className={`my-5 rounded-2xl p-5 shadow-lg backdrop-blur-xl ${
+              isCritical
+                ? 'bg-rose-950/25 border border-rose-500/40 text-rose-300 shadow-[0_8px_32px_rgba(244,63,94,0.15)]'
+                : 'bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 shadow-[0_8px_32px_rgba(16,185,129,0.1)]'
+            }`}>
+              <div className={`flex items-center justify-between pb-2.5 border-b mb-3 ${
+                isCritical ? 'border-rose-900/40' : 'border-emerald-900/40'
+              }`}>
+                <div className={`flex items-center space-x-2 text-xs font-sans font-bold ${
+                  isCritical ? 'text-rose-400' : 'text-emerald-400'
+                }`}>
+                  <CheckCircle2 className="w-4 h-4" />
                   <span>FACT LEDGER — SANDBOX PROOFS</span>
                 </div>
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold border border-emerald-500/40">
-                  ✓ Verified Ground Truth
+                <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold border ${
+                  isCritical
+                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                }`}>
+                  {isCritical ? '🚨 Verified Egress Violation' : '✓ Verified Ground Truth'}
                 </span>
               </div>
 
@@ -345,21 +357,25 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
                     Verified AST Line Numbers &amp; Call Sites:
                   </span>
                   <div className="space-y-1.5 font-mono text-[11px]">
-                    <div className="p-2.5 rounded-xl bg-[#0e1612] border border-emerald-900/30 flex items-center justify-between">
-                      <span className="text-emerald-300 font-bold truncate">
-                        {node.id === 'pkg-event-stream' ? 'src/pipeline/stream_handler.py' :
-                         node.id === 'pkg-xz-native' ? 'src/compress/archive_engine.py' :
-                         node.id === 'pkg-colors-ext' ? 'src/cli/formatter.py' : 'src/core/runtime.py'}
+                    <div className="p-2.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 flex items-center justify-between">
+                      <span className={`font-bold truncate ${isCritical ? 'text-rose-300' : 'text-emerald-300'}`}>
+                        {node.id === 'pkg-event-stream' || node.id === 'pkg-urllib3' ? 'src/pipeline/stream_handler.py' :
+                         node.id === 'pkg-xz-native' || node.id === 'pkg-crypto' ? 'src/crypto/cipher_engine.py' :
+                         node.id === 'pkg-pydantic-core' ? 'src/api/schema_validator.py' : 'src/core/runtime.py'}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] shrink-0">
-                        Line {node.id === 'pkg-event-stream' ? '42 & 89' : node.id === 'pkg-xz-native' ? '18 & 67' : '12 & 45'}
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] shrink-0 border ${
+                        isCritical
+                          ? 'bg-rose-950 text-rose-300 border-rose-800'
+                          : 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                      }`}>
+                        Line {node.id === 'pkg-event-stream' || node.id === 'pkg-urllib3' ? '42 & 89' : node.id === 'pkg-crypto' ? '18 & 72' : '14 & 56'}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Sandbox Test Outcomes */}
-                <div className="pt-2 border-t border-emerald-900/30">
+                <div className={`pt-2 border-t ${isCritical ? 'border-rose-900/40' : 'border-emerald-900/30'}`}>
                   <div className="flex items-center justify-between text-[10px] font-mono mb-1.5">
                     <span className="text-stone-400 font-semibold uppercase">Sandbox Execution Outcome:</span>
                     <span className={`px-2 py-0.5 rounded font-bold uppercase ${
@@ -367,48 +383,66 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
                         ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                         : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                     }`}>
-                      {isCritical ? '1 FAIL / Egress Violation' : 'All Baseline Tests Passed'}
+                      {isCritical ? 'FAIL / Egress Violation Detected' : 'All Baseline Tests Passed'}
                     </span>
                   </div>
                   <div className="text-[11px] text-stone-300 leading-relaxed font-sans">
                     {isCritical
-                      ? 'Kernel eBPF tracer detected unauthorized outbound socket attempts during postinstall lifecycle.'
-                      : 'Zero anomalous runtime mutations, dynamic eval hooks, or bytecode deviations detected.'}
+                      ? 'Kernel eBPF tracer detected unauthorized outbound socket attempts and high-entropy payload injection during postinstall lifecycle.'
+                      : 'Zero anomalous runtime mutations, dynamic eval hooks, or bytecode deviations detected in isolated Python 3.12 sandbox.'}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* 2. THE CLAIM LEDGER (GEMMA 4 AI HYPOTHESES & PROPOSALS) */}
-            <div className="my-5 rounded-2xl bg-[#141009] border-2 border-dashed border-amber-400/60 p-5 shadow-lg">
-              <div className="flex items-center justify-between pb-2.5 border-b border-amber-900/40 mb-3">
-                <div className="flex items-center space-x-2 text-amber-400 text-xs font-sans font-bold">
-                  <Bot className="w-4 h-4 text-amber-400" />
+            <div className={`my-5 rounded-2xl p-5 shadow-lg backdrop-blur-xl border-2 border-dashed ${
+              isCritical
+                ? 'bg-rose-950/20 border-rose-500/50 shadow-[0_8px_32px_rgba(244,63,94,0.1)]'
+                : 'bg-[#141009]/80 border-amber-400/60 shadow-amber-950/20'
+            }`}>
+              <div className={`flex items-center justify-between pb-2.5 border-b mb-3 ${
+                isCritical ? 'border-rose-900/40' : 'border-amber-900/40'
+              }`}>
+                <div className={`flex items-center space-x-2 text-xs font-sans font-bold ${
+                  isCritical ? 'text-rose-400' : 'text-amber-400'
+                }`}>
+                  <Bot className="w-4 h-4" />
                   <span>CLAIM LEDGER — AI SUGGESTIONS</span>
                 </div>
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold border border-amber-500/40 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
+                <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold border flex items-center gap-1 ${
+                  isCritical
+                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                }`}>
+                  <Sparkles className="w-3 h-3" />
                   <span>⚡ Unverified Model Output — Gemma 4</span>
                 </span>
               </div>
 
               <div className="text-sm font-sans text-stone-200 leading-relaxed space-y-2.5">
-                <p className="font-medium text-amber-100 text-xs sm:text-sm">
+                <p className={`font-medium text-xs sm:text-sm ${isCritical ? 'text-rose-200' : 'text-amber-100'}`}>
                   {node.aiExplanation || "Gemma 4 Risk Synthesis: Continuous heuristic evaluation active. No active zero-day anomalies detected in release artifacts."}
                 </p>
 
-                <div className="text-xs font-sans text-stone-300 pt-2 border-t border-amber-900/30 space-y-1.5">
+                <div className={`text-xs font-sans text-stone-300 pt-2 border-t space-y-1.5 ${
+                  isCritical ? 'border-rose-900/40' : 'border-amber-900/30'
+                }`}>
                   <div>
-                    <span className="text-amber-400 font-semibold">Gemma Risk Evaluation:</span>{' '}
+                    <span className={isCritical ? 'text-rose-400 font-semibold' : 'text-amber-400 font-semibold'}>
+                      Gemma Risk Evaluation:
+                    </span>{' '}
                     <span className="text-stone-300">Composite Risk Score {node.riskScore > 80 ? '9.4' : node.riskScore > 50 ? '6.8' : '1.2'} / 10</span>
                   </div>
                   <div>
-                    <span className="text-amber-400 font-semibold">Suggested Exit Strategy:</span>{' '}
+                    <span className={isCritical ? 'text-rose-400 font-semibold' : 'text-amber-400 font-semibold'}>
+                      Suggested Exit Strategy:
+                    </span>{' '}
                     <span className="text-stone-300">
-                      {node.id === 'pkg-event-stream' ? 'Migrate to safe-event-stream@2.1.4 (94% confidence, drop-in replacement).' :
-                       node.id === 'pkg-xz-native' ? 'Rollback to standard library lzma or zstandard@0.22.0.' :
-                       node.id === 'pkg-colors-ext' ? 'Replace with rich@13.7.1 terminal formatter.' :
-                       'Verified stable package. Maintain current pinned version.'}
+                      {node.name.includes('urllib3') ? 'Migrate to urllib3>=2.2.1 (96% confidence, drop-in replacement).' :
+                       node.name.includes('crypto') ? 'Purge cryptography-cffi immediately; pin official cryptography>=42.0.5.' :
+                       node.name.includes('pydantic') ? 'Upgrade to official pydantic-core>=2.18.2 wheel.' :
+                       'Verified stable package. Maintain current pinned version in requirements.txt.'}
                     </span>
                   </div>
                 </div>
@@ -459,7 +493,7 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
                     <button
                       key={vuln.id}
                       onClick={() => setSelectedVuln(vuln)}
-                      className="w-full text-left p-3 rounded-2xl bg-[#0b0d0c] border border-rose-500/30 hover:border-rose-500/60 transition-all group flex items-start justify-between gap-3 font-sans"
+                      className="w-full text-left p-3 rounded-2xl bg-rose-950/20 backdrop-blur-xl border border-rose-500/30 hover:border-rose-500/60 transition-all group flex items-start justify-between gap-3 font-sans shadow-sm"
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-0.5">
@@ -491,10 +525,10 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
               ) : node.cves.length > 0 ? (
                 <div className="space-y-2 text-xs font-sans">
                   {node.cves.map((cve) => (
-                    <div key={cve} className="p-3 rounded-2xl bg-[#0b0d0c] border border-rose-500/30 flex items-center justify-between">
+                    <div key={cve} className="p-3 rounded-2xl bg-rose-950/20 backdrop-blur-xl border border-rose-500/30 flex items-center justify-between shadow-sm">
                       <div>
                         <span className="text-rose-400 font-mono font-bold">{cve}</span>
-                        <span className="text-stone-400 text-[11px] font-sans block mt-0.5">Supply chain remote code execution &amp; credential leakage vector</span>
+                        <span className="text-stone-300 text-[11px] font-sans block mt-0.5">Supply chain remote code execution &amp; credential leakage vector</span>
                       </div>
                       <a
                         href={`https://osv.dev/vulnerability/${cve}`}
@@ -509,7 +543,7 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
                   ))}
                 </div>
               ) : (
-                <div className="p-3.5 rounded-2xl bg-[#0b0d0c] border border-stone-800 text-xs font-sans text-emerald-400 flex items-center gap-2">
+                <div className="p-3.5 rounded-2xl bg-emerald-950/20 backdrop-blur-xl border border-emerald-500/30 text-xs font-sans text-emerald-400 flex items-center gap-2 shadow-sm">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Zero published CVE advisories currently linked to this package.</span>
                 </div>
@@ -518,19 +552,19 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
 
             {/* AST Verification Receipt */}
             {node.polygonHash && (
-              <div className="mb-6 p-3.5 rounded-2xl bg-[#0b0d0c] border border-stone-800 text-xs font-sans">
-                <div className="flex items-center justify-between text-[11px] text-stone-400 pb-2 border-b border-stone-800">
+              <div className="mb-6 p-3.5 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 text-xs font-sans shadow-sm">
+                <div className="flex items-center justify-between text-[11px] text-stone-400 pb-2 border-b border-white/10">
                   <span className="flex items-center gap-1 text-emerald-400 font-medium">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     AST Verification Digest
                   </span>
-                  <span className="text-stone-500 font-mono">Python 3.12 Sealed</span>
+                  <span className="text-stone-400 font-mono">Python 3.12 Sealed</span>
                 </div>
                 <div className="flex items-center justify-between mt-2.5">
                   <span className="text-emerald-300 font-mono truncate max-w-[240px]">{node.polygonHash}</span>
                   <button
                     onClick={handleCopyHash}
-                    className="text-[11px] font-sans text-stone-300 hover:text-white px-3 py-1 rounded-full bg-stone-900 border border-stone-800 flex items-center gap-1.5"
+                    className="text-[11px] font-sans text-stone-200 hover:text-white px-3 py-1 rounded-full bg-white/[0.08] hover:bg-white/[0.12] border border-white/10 flex items-center gap-1.5 transition-colors"
                   >
                     {copiedHash ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedHash ? 'Copied' : 'Copy'}</span>
@@ -575,8 +609,8 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
                 disabled={overridden}
                 className={`py-3 rounded-full font-sans text-xs font-semibold tracking-wider flex items-center justify-center space-x-1.5 transition-all ${
                   overridden
-                    ? 'bg-[#0b0d0c] text-stone-500 border border-stone-800 cursor-not-allowed'
-                    : 'bg-[#0b0d0c] hover:bg-stone-900 text-stone-200 border border-stone-800 hover:border-emerald-700/50'
+                    ? 'bg-white/[0.04] text-stone-500 border border-white/5 cursor-not-allowed'
+                    : 'bg-white/[0.06] hover:bg-white/[0.12] text-stone-200 border border-white/10 hover:border-emerald-500/40 shadow-sm'
                 }`}
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
@@ -587,7 +621,7 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
                 href={`https://github.com/search?q=${encodeURIComponent(node.name)}&type=repositories`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-3 rounded-full font-sans text-xs font-semibold tracking-wider flex items-center justify-center space-x-1.5 bg-[#0b0d0c] hover:bg-stone-900 text-stone-200 border border-stone-800 hover:border-emerald-700/50 transition-all"
+                className="py-3 rounded-full font-sans text-xs font-semibold tracking-wider flex items-center justify-center space-x-1.5 bg-white/[0.06] hover:bg-white/[0.12] text-stone-200 border border-white/10 hover:border-emerald-500/40 transition-all shadow-sm"
               >
                 <span>GITHUB</span>
                 <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
@@ -595,7 +629,7 @@ export const ThreatDrawer: React.FC<ThreatDrawerProps> = ({
             </div>
 
             {/* Gemma 4 Model Metadata Pill */}
-            <div className="p-2.5 rounded-xl bg-[#0b0d0c] border border-stone-800 text-[10px] font-mono text-stone-400 flex items-center justify-between">
+            <div className="p-2.5 rounded-xl bg-white/[0.06] backdrop-blur-xl border border-white/10 text-[10px] font-mono text-stone-400 flex items-center justify-between shadow-sm">
               <span className="flex items-center gap-1.5 text-stone-300">
                 <Sparkles className="w-3 h-3 text-amber-400" />
                 <span>Model: Gemma 4 (Google GenAI API)</span>
