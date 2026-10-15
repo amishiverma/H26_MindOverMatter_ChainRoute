@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from typing import Any
@@ -53,6 +54,54 @@ class Claim:
         return asdict(self)
 
 
+# ---------------------------------------------------------------------------
+# Robust JSON extraction helper (shared with risk.py, propose.py)
+# ---------------------------------------------------------------------------
+
+_JSON_FENCE_PATTERN = re.compile(r"^```(?:json)?\s*\n?(.*?)\n?```$", re.DOTALL | re.IGNORECASE)
+
+def _extract_json(raw_text: str) -> str:
+    """
+    Robustly extract JSON from model output, handling:
+    - Bare JSON
+    - Markdown fences with or without language specifier (```json, ```JSON, ```)
+    - Leading/trailing whitespace
+    - Accidental prose before/after JSON (best effort)
+    """
+    text = raw_text.strip()
+    
+    # Try markdown fence first
+    fence_match = _JSON_FENCE_PATTERN.match(text)
+    if fence_match:
+        return fence_match.group(1).strip()
+    
+    # Try to find JSON object/array boundaries if wrapped in prose
+    first_brace = text.find('{')
+    first_bracket = text.find('[')
+    
+    if first_brace == -1 and first_bracket == -1:
+        return text
+    
+    start_idx = first_brace if (first_brace != -1 and (first_bracket == -1 or first_brace < first_bracket)) else first_bracket
+    end_char = '}' if text[start_idx] == '{' else ']'
+    
+    depth = 0
+    end_idx = -1
+    for i, ch in enumerate(text[start_idx:], start=start_idx):
+        if ch == text[start_idx]:
+            depth += 1
+        elif ch == end_char:
+            depth -= 1
+            if depth == 0:
+                end_idx = i
+                break
+    
+    if end_idx != -1:
+        return text[start_idx:end_idx + 1]
+    
+    return text
+
+
 def _get_client() -> genai.Client | None:
     """Return authenticated google.genai Client, or None if unconfigured."""
     api_key = os.getenv("GEMINI_API_KEY")
@@ -66,60 +115,83 @@ def _extract_failures(test_facts: dict[str, Any]) -> tuple[list[dict[str, str]],
     """
     Extract failure details, passed count, and failed count from test_facts.
     Supports PytestRun dicts, BaselineResult dicts, or generic test summaries.
+    
+    Robustly handles malformed or missing keys in test_facts.
     """
     failed_items: list[dict[str, str]] = []
     passed_count = 0
     failed_count = 0
 
+    # Guard against non-dict input (already handled in caller, but defensive)
+    if not isinstance(test_facts, dict):
+        logger.warning("_extract_failures: test_facts is not a dict; treating as empty")
+        return [], 0, 0
+
     # 1. Check test_cases list (PytestRun structure)
-    test_cases = test_facts.get("test_cases", [])
+    test_cases = test_facts.get("test_cases")
     if isinstance(test_cases, list) and test_cases:
         for tc in test_cases:
-            if isinstance(tc, dict):
-                outcome = tc.get("outcome", "").lower()
-                if outcome in ("failed", "error"):
-                    failed_count += 1
-                    failed_items.append({
-                        "nodeid": tc.get("nodeid", "unknown"),
-                        "name": tc.get("name", "unknown"),
-                        "message": tc.get("message", "Test failed without message"),
-                    })
-                elif outcome == "passed":
-                    passed_count += 1
+            if not isinstance(tc, dict):
+                continue
+            outcome = str(tc.get("outcome", "")).lower()
+            if outcome in ("failed", "error"):
+                failed_count += 1
+                failed_items.append({
+                    "nodeid": str(tc.get("nodeid", "unknown")),
+                    "name": str(tc.get("name", "unknown")),
+                    "message": str(tc.get("message", "Test failed without message")),
+                })
+            elif outcome == "passed":
+                passed_count += 1
 
     # 2. Check explicit failed_tests / failures list
     failures_field = test_facts.get("failed_tests") or test_facts.get("failures")
     if isinstance(failures_field, list) and failures_field:
         for f in failures_field:
             if isinstance(f, dict):
-                if f not in failed_items:
-                    failed_items.append(f)
+                # Deduplicate by nodeid
+                nodeid = str(f.get("nodeid", "unknown"))
+                if not any(item["nodeid"] == nodeid for item in failed_items):
+                    failed_items.append({
+                        "nodeid": nodeid,
+                        "message": str(f.get("message", f)),
+                    })
                     failed_count += 1
             elif isinstance(f, str):
                 failed_items.append({"nodeid": f, "message": f})
                 failed_count += 1
 
     # 3. Check baseline stable_fail / flakiness structure
-    stable_fails = test_facts.get("stable_fail", [])
+    stable_fails = test_facts.get("stable_fail")
     if isinstance(stable_fails, list):
         for sf in stable_fails:
-            nodeid = sf if isinstance(sf, str) else sf.get("nodeid", str(sf))
+            nodeid = str(sf) if isinstance(sf, str) else str(sf.get("nodeid", str(sf)))
             if not any(item["nodeid"] == nodeid for item in failed_items):
                 failed_items.append({"nodeid": nodeid, "message": "Failed in baseline runs"})
                 failed_count += 1
 
     # Explicit count overrides if present
     if "failed_count" in test_facts:
-        failed_count = int(test_facts["failed_count"])
+        try:
+            failed_count = int(test_facts["failed_count"])
+        except (ValueError, TypeError):
+            logger.warning("_extract_failures: failed_count not an int, ignoring")
     if "passed_count" in test_facts:
-        passed_count = int(test_facts["passed_count"])
+        try:
+            passed_count = int(test_facts["passed_count"])
+        except (ValueError, TypeError):
+            logger.warning("_extract_failures: passed_count not an int, ignoring")
 
     # Fallback to exit_code if non-zero and no items collected yet
     exit_code = test_facts.get("exit_code")
-    if exit_code is not None and int(exit_code) != 0 and failed_count == 0:
-        failed_count = 1
-        stderr_msg = test_facts.get("stderr") or test_facts.get("stdout") or f"Process exited with code {exit_code}"
-        failed_items.append({"nodeid": "process_execution", "message": stderr_msg[:1000]})
+    if exit_code is not None:
+        try:
+            if int(exit_code) != 0 and failed_count == 0:
+                failed_count = 1
+                stderr_msg = test_facts.get("stderr") or test_facts.get("stdout") or f"Process exited with code {exit_code}"
+                failed_items.append({"nodeid": "process_execution", "message": str(stderr_msg)[:1000]})
+        except (ValueError, TypeError):
+            pass
 
     return failed_items, passed_count, failed_count
 
@@ -180,14 +252,19 @@ def evaluate_gaps(test_facts: dict[str, Any]) -> Claim:
     Returns:
         Claim: typed Claim tagged with provenance="model".
     """
+    # Robust input validation
     if not isinstance(test_facts, dict):
         logger.warning("evaluate_gaps: test_facts is not a dict; treating as empty facts")
         test_facts = {}
 
-    failed_items, passed_count, failed_count = _extract_failures(test_facts)
+    try:
+        failed_items, passed_count, failed_count = _extract_failures(test_facts)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("evaluate_gaps: _extract_failures raised exception: %s", exc)
+        failed_items, passed_count, failed_count = [], 0, 0
 
     # If all tests passed and no exit code failure reported:
-    if failed_count == 0 and failed_items == []:
+    if failed_count == 0 and not failed_items:
         narrative = (
             f"All {passed_count} verification test(s) completed successfully with 0 failures. "
             "No behavioral regressions, breaking API changes, or unresolved execution gaps detected."
@@ -241,13 +318,13 @@ def evaluate_gaps(test_facts: dict[str, Any]) -> Claim:
         )
         raw_text = (response.text or "").strip()
 
-        if raw_text.startswith("```"):
-            raw_text = "\n".join(
-                line for line in raw_text.splitlines()
-                if not line.startswith("```")
-            ).strip()
+        if not raw_text:
+            raise json.JSONDecodeError("Empty response from Gemma", "", 0)
 
-        parsed = json.loads(raw_text)
+        # Robust JSON extraction
+        json_text = _extract_json(raw_text)
+
+        parsed = json.loads(json_text)
         concerns = parsed.get("open_concerns", [])
         if not isinstance(concerns, list):
             concerns = [str(concerns)]

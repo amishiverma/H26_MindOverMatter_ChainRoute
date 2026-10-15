@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from typing import Any
@@ -189,6 +190,57 @@ def _heuristic_score(flags: list[str]) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Robust JSON extraction helper
+# ---------------------------------------------------------------------------
+
+_JSON_FENCE_PATTERN = re.compile(r"^```(?:json)?\s*\n?(.*?)\n?```$", re.DOTALL | re.IGNORECASE)
+
+def _extract_json(raw_text: str) -> str:
+    """
+    Robustly extract JSON from model output, handling:
+    - Bare JSON
+    - Markdown fences with or without language specifier (```json, ```JSON, ```)
+    - Leading/trailing whitespace
+    - Accidental prose before/after JSON (best effort)
+    """
+    text = raw_text.strip()
+    
+    # Try markdown fence first
+    fence_match = _JSON_FENCE_PATTERN.match(text)
+    if fence_match:
+        return fence_match.group(1).strip()
+    
+    # Try to find JSON object/array boundaries if wrapped in prose
+    # Look for first { or [ and last } or ]
+    first_brace = text.find('{')
+    first_bracket = text.find('[')
+    
+    if first_brace == -1 and first_bracket == -1:
+        return text  # No JSON-like structure found, return as-is for json.loads to fail
+    
+    # Determine which comes first
+    start_idx = first_brace if (first_brace != -1 and (first_bracket == -1 or first_brace < first_bracket)) else first_bracket
+    end_char = '}' if text[start_idx] == '{' else ']'
+    
+    # Find matching closing bracket (naive but handles most cases)
+    depth = 0
+    end_idx = -1
+    for i, ch in enumerate(text[start_idx:], start=start_idx):
+        if ch == text[start_idx]:
+            depth += 1
+        elif ch == end_char:
+            depth -= 1
+            if depth == 0:
+                end_idx = i
+                break
+    
+    if end_idx != -1:
+        return text[start_idx:end_idx + 1]
+    
+    return text
+
+
+# ---------------------------------------------------------------------------
 # Gemma 4 client
 # ---------------------------------------------------------------------------
 
@@ -333,14 +385,10 @@ def analyze_risk(repo_metadata: dict[str, Any]) -> list[Claim]:
                 )
                 raw_text = (response.text or "").strip()
 
-                # Strip accidental markdown fences
-                if raw_text.startswith("```"):
-                    raw_text = "\n".join(
-                        line for line in raw_text.splitlines()
-                        if not line.startswith("```")
-                    ).strip()
+                # Robust JSON extraction
+                json_text = _extract_json(raw_text)
 
-                parsed: dict[str, Any] = json.loads(raw_text)
+                parsed: dict[str, Any] = json.loads(json_text)
                 risk_indicators = parsed.get("risk_indicators", risk_indicators)
                 maintenance_score = int(parsed.get("maintenance_score", maintenance_score))
                 maintenance_score = max(0, min(100, maintenance_score))
