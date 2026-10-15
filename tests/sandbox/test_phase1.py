@@ -41,6 +41,12 @@ import textwrap
 import unittest
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+
 # ---------------------------------------------------------------------------
 # Path bootstrap so the test works regardless of CWD or installed package
 # ---------------------------------------------------------------------------
