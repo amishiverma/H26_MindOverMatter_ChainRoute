@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   ShieldAlert,
-  Terminal,
   FileCode2,
   GitBranch,
   ArrowRight,
@@ -320,7 +319,7 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <h2 className="text-xl font-display font-bold text-white">
-              The 9-Header Dependency Exit Capsule
+              The Dependency Exit Capsule
             </h2>
           </div>
           <span className="text-xs font-mono text-stone-400">
@@ -542,66 +541,12 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
           </div>
         </div>
 
-        {/* ── HEADER 5: MIGRATION STEPS (CLAIM LEDGER) ──────────────────────── */}
-        <div className="rounded-2xl p-6 bg-[#141009] border-2 border-dashed border-amber-400/60 shadow-lg">
-          <div className="flex items-center justify-between pb-3 border-b border-amber-900/40 mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
-                Header 5
-              </span>
-              <span className="text-stone-500">•</span>
-              <span className="text-sm font-bold text-white">Migration Steps</span>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              <span>Unverified Model Output — Gemma 4</span>
-            </span>
-          </div>
-
-          <ol className="space-y-2.5 text-xs font-sans text-stone-300">
-            {capsule.claim.migration_steps.map((step, idx) => (
-              <li key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-[#1a140a] border border-amber-900/30">
-                <span className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
-                  {idx + 1}
-                </span>
-                <span className="leading-relaxed">{step}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        {/* ── HEADER 6: SUGGESTED TESTS (CLAIM LEDGER) ──────────────────────── */}
-        <div className="rounded-2xl p-6 bg-[#141009] border-2 border-dashed border-amber-400/60 shadow-lg">
-          <div className="flex items-center justify-between pb-3 border-b border-amber-900/40 mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
-                Header 6
-              </span>
-              <span className="text-stone-500">•</span>
-              <span className="text-sm font-bold text-white">Suggested Tests</span>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              <span>Unverified Model Output — Gemma 4</span>
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {capsule.claim.suggested_tests.map((test, idx) => (
-              <div key={idx} className="p-3 rounded-xl bg-[#1a140a] border border-amber-900/30 flex items-center gap-2.5 text-xs font-mono text-stone-200">
-                <Terminal className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>{test}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── HEADER 7: EXECUTED TEST RESULTS (FACT LEDGER) ─────────────────── */}
+        {/* ── HEADER 5: EXECUTED TEST RESULTS (FACT LEDGER) ─────────────────── */}
         <div className="rounded-2xl p-6 bg-[#0a120e] border border-emerald-500/60 shadow-lg">
           <div className="flex items-center justify-between pb-3 border-b border-emerald-900/40 mb-4">
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
-                Header 7
+                Header 5
               </span>
               <span className="text-stone-500">•</span>
               <span className="text-sm font-bold text-white">Executed Test Results (Sandbox Double-Baseline)</span>
@@ -672,50 +617,12 @@ export const SandboxCapsuleView: React.FC<SandboxCapsuleViewProps> = ({
           </div>
         </div>
 
-        {/* ── HEADER 8: COMPATIBILITY GAPS (CLAIM LEDGER) ───────────────────── */}
+        {/* ── HEADER 6: OPEN CONCERNS (CLAIM / MERGER LEDGER) ───────────────── */}
         <div className="rounded-2xl p-6 bg-[#141009] border-2 border-dashed border-amber-400/60 shadow-lg">
           <div className="flex items-center justify-between pb-3 border-b border-amber-900/40 mb-4">
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
-                Header 8
-              </span>
-              <span className="text-stone-500">•</span>
-              <span className="text-sm font-bold text-white">Compatibility Gaps</span>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              <span>Unverified Model Output — Gemma 4</span>
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-3">
-            {[
-              { label: 'Missing Test Coverage', val: capsule.claim.gap_evaluation.missing_test_coverage },
-              { label: 'Missing Usage Locs', val: capsule.claim.gap_evaluation.missing_usage_locations },
-              { label: 'Ambiguous Version', val: capsule.claim.gap_evaluation.ambiguous_version },
-              { label: 'Insufficient Vuln Data', val: capsule.claim.gap_evaluation.insufficient_vuln_data },
-            ].map((gap, i) => (
-              <div key={i} className="p-3 rounded-xl bg-[#1a140a] border border-amber-900/30 text-center">
-                <span className="text-[10px] text-stone-400 uppercase block mb-1">{gap.label}</span>
-                <span className={`text-xs font-mono font-bold ${gap.val ? 'text-rose-400' : 'text-emerald-400'}`}>
-                  {gap.val ? '⚠️ Gap Detected' : '✓ Verified Clear'}
-                </span>
-              </div>
-            ))}
-          </div>
-          {capsule.claim.gap_evaluation.notes && (
-            <p className="text-xs text-stone-300 font-sans p-3 rounded-xl bg-[#1a140a] border border-amber-900/20">
-              {capsule.claim.gap_evaluation.notes}
-            </p>
-          )}
-        </div>
-
-        {/* ── HEADER 9: OPEN CONCERNS (CLAIM / MERGER LEDGER) ───────────────── */}
-        <div className="rounded-2xl p-6 bg-[#141009] border-2 border-dashed border-amber-400/60 shadow-lg">
-          <div className="flex items-center justify-between pb-3 border-b border-amber-900/40 mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
-                Header 9
+                Header 6
               </span>
               <span className="text-stone-500">•</span>
               <span className="text-sm font-bold text-white">Open Concerns &amp; Merger Verdict</span>
