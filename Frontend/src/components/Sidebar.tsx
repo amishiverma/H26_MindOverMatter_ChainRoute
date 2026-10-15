@@ -24,12 +24,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onBackToLanding,
 }) => {
   const navItems: { id: ActiveTab; icon: React.ComponentType<{ className?: string }>; label: string }[] = [
-    { id: 'overview', icon: Home, label: 'Dashboard' },
-    { id: 'sandbox', icon: FlaskConical, label: 'Sandbox & Exit Capsule' },
-    { id: 'analytics', icon: BarChart2, label: 'Analytics' },
-    { id: 'graph', icon: Layers, label: 'Risk Matrix' },
-    { id: 'vulnerabilities', icon: ShieldCheck, label: 'Threat Logs' },
-    { id: 'settings', icon: Settings, label: 'Settings' },
+    // Deprecated views commented out per Hackathon Dev 4 isolation directives
+    // { id: 'overview', icon: Home, label: 'Dashboard' },
+    { id: 'sandbox', icon: FlaskConical, label: 'Dependency Resilience / Sandbox Capsule' },
+    // { id: 'analytics', icon: BarChart2, label: 'Analytics' },
+    // { id: 'graph', icon: Layers, label: 'Risk Matrix' },
+    // { id: 'vulnerabilities', icon: ShieldCheck, label: 'Threat Logs' },
+    // { id: 'settings', icon: Settings, label: 'Settings' },
   ];
 
   return (

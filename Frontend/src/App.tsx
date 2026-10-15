@@ -31,8 +31,8 @@ export const App: React.FC = () => {
   // Page mode: 'landing' or 'dashboard'
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
 
-  // Dashboard active tab
-  const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
+  // Dashboard active tab - isolated to 'sandbox' per Dev 4 directives
+  const [activeTab, setActiveTab] = useState<ActiveTab>('sandbox');
 
   // Data states
   const [nodes, setNodes] = useState<DependencyNode[]>(initialNodes);
@@ -275,8 +275,9 @@ export const App: React.FC = () => {
 
             {/* Main Content Area */}
             <main className="flex-1 p-5 sm:p-7 lg:p-8 overflow-y-auto bg-transparent min-h-[calc(100vh-5rem)]">
+              {/* Deprecated views commented out per Hackathon Dev 4 isolation directives */}
               {/* Overview Tab: 3-Row Bento Box */}
-              {activeTab === 'overview' && (
+              {/* {activeTab === 'overview' && (
                 <DashboardOverview
                   onScanRepo={() => handleStartScan(`https://github.com/${currentRepo}`)}
                   onNavigateToSandbox={() => setActiveTab('sandbox')}
@@ -286,9 +287,9 @@ export const App: React.FC = () => {
                   scanTxHash={scanTxHash}
                   stats={{ criticalCount, warningCount, safeCount, totalPackages }}
                 />
-              )}
+              )} */}
 
-              {/* Sandbox & Exit Capsule Tab (Two Ledgers) */}
+              {/* Sandbox & Exit Capsule Tab (Two Ledgers - PRIMARY ISOLATED VIEW) */}
               {activeTab === 'sandbox' && (
                 <SandboxCapsuleView
                   currentRepo={currentRepo}
@@ -296,7 +297,7 @@ export const App: React.FC = () => {
               )}
 
               {/* Dependency Map Tab */}
-              {activeTab === 'graph' && (
+              {/* {activeTab === 'graph' && (
                 <div className="space-y-4 max-w-[1600px] mx-auto">
                   <div className="flex items-center justify-between pb-3 border-b border-white/5">
                     <div>
@@ -326,10 +327,10 @@ export const App: React.FC = () => {
                     isFullScreen={true}
                   />
                 </div>
-              )}
+              )} */}
 
               {/* Threat Analytics Tab */}
-              {activeTab === 'analytics' && (
+              {/* {activeTab === 'analytics' && (
                 <div className="space-y-6 max-w-[1600px] mx-auto">
                   <div className="flex items-center justify-between pb-3 border-b border-white/5">
                     <div>
@@ -343,24 +344,30 @@ export const App: React.FC = () => {
                   </div>
                   <AnalyticsChart history={scanHistory} />
                 </div>
-              )}
+              )} */}
 
               {/* Vulnerability Logs Tab */}
-              {activeTab === 'vulnerabilities' && (
+              {/* {activeTab === 'vulnerabilities' && (
                 <div className="max-w-[1600px] mx-auto">
                   <VulnerabilityLogsView
                     nodes={nodes}
                     onSelectNode={(node) => setSelectedNode(node)}
                   />
                 </div>
-              )}
+              )} */}
 
+              {/* Blockchain Proofs Tab - Deprecated per Hackathon Dev 4 isolation directives */}
+              {/* {activeTab === 'blockchain' && (
+                <div className="max-w-[1600px] mx-auto">
+                  <BlockchainProofsView scanTxHash={scanTxHash} />
+                </div>
+              )} */}
               {/* Settings Tab */}
-              {activeTab === 'settings' && (
+              {/* {activeTab === 'settings' && (
                 <div className="max-w-[1600px] mx-auto">
                   <SettingsModal />
                 </div>
-              )}
+              )} */}
             </main>
           </div>
         </div>
@@ -388,6 +395,21 @@ export const App: React.FC = () => {
         />
       )}
 
+      {/* AUTONOMOUS SUPPLY CHAIN ATTACK SURFACE MODAL - DEPRECATED FOR DECOUPLING
+      {showVRModal && (
+        <VRARViewModal
+          onClose={() => setShowVRModal(false)}
+          onSelectNodeByName={(name) => {
+            const found = nodes.find((n) => n.name === name);
+            if (found) {
+              setSelectedNode(found);
+              setCurrentView('dashboard');
+              setShowVRModal(false);
+            }
+          }}
+        />
+      )}
+      */}
       {/* COMMAND PALETTE (⌘ + Space) */}
       <CommandPalette
         isOpen={showCommandPalette}

@@ -1,4 +1,4 @@
-﻿"""
+"""
 backend/api/main.py - FastAPI App Initialisation (Dev 3 * Phase 2)
 
 Ported from traceroot/backend/main.py:
@@ -25,7 +25,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import router
+from backend.api.routes import router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -101,6 +101,7 @@ app.include_router(router)
 
 
 @app.get("/health")
+@app.get("/api/health")
 async def health() -> dict:
     return {"status": "healthy", "service": "chainroute-api", "version": "1.0.0"}
 

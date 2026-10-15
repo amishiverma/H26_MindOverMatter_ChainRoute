@@ -302,3 +302,48 @@ export function getPyPiAvatarUrl(username: string): string {
   return `https://www.gravatar.com/avatar/${username}?d=identicon&s=40`;
 }
 export const getNpmAvatarUrl = getPyPiAvatarUrl;
+
+// ============================================================================
+// PIPELINE & JOB STATE POLLING (Dev 4)
+// ============================================================================
+
+export interface JobStateResponse {
+  job_id: string;
+  capsule_id?: string;
+  status: 'queued' | 'processing' | 'complete' | 'error';
+  dependency: string;
+  fact_ready?: boolean;
+  claim_ready?: boolean;
+  error?: string | null;
+  capsule?: any;
+  message?: string;
+}
+
+export async function fetchJobState(jobId: string): Promise<JobStateResponse> {
+  const response = await fetch(`${API_BASE}/job/${jobId}`);
+  if (!response.ok) {
+    const fallback = await fetch(`${API_BASE}/job/${jobId}/status`);
+    if (fallback.ok) {
+      return fallback.json();
+    }
+    throw new Error(`HTTP ${response.status}: Failed to fetch job state for ${jobId}`);
+  }
+  return response.json();
+}
+
+export async function startJob(
+  repoPath: string,
+  dependency: string,
+  ecosystem: string = 'pypi'
+): Promise<{ job_id: string; capsule_id?: string; status: string }> {
+  const response = await fetch(`${API_BASE}/job/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ repo_path: repoPath, dependency, ecosystem }),
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to start job' }));
+    throw new Error(error.message || `HTTP ${response.status}: Failed to start job`);
+  }
+  return response.json();
+}

@@ -21,7 +21,7 @@ from enum import Enum
 from typing import Optional
 from uuid import uuid4
 
-from contracts.schemas import (
+from backend.contracts.schemas import (
     ClaimLedger,
     DependencyExitCapsule,
     FactLedger,
